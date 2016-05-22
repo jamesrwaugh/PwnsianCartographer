@@ -19,7 +19,7 @@ int main(int argc, char** argv)
     try
     {
     #if 1
-        #if 1
+        #if 0
         RegionFile file(argv[1]);
         RegionFile::ChunkMap chunks = file.getAllChunks();
         std::cout << chunks.size() << " Chunks..." << std::endl;

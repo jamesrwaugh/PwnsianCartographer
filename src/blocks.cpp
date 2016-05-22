@@ -4,6 +4,25 @@
 #include "utility.h"
 #include "blocks.h"
 
+namespace
+{
+
+/* This is a std::map comparison functor that returns
+ * true if two SDL_Colors are similar. By doing this,
+ * similar colors can be grouped together */
+
+struct SimilarColorCompare
+{
+    static const int tol = 20;
+
+    bool operator()(const SDL_Color& a, const SDL_Color& b)
+    {
+        return (abs(a.r-b.r) < tol) && (abs(a.g-b.g) < tol) && (abs(a.b-b.b) < tol);
+    }
+};
+
+}
+
 namespace blocks
 {
 
@@ -79,6 +98,9 @@ void BlockColors::load(const std::string& zipFileName, const std::string& cacheF
     // ex: {"2-4": {"crc": 5234231, "color": 2489974272}, ... }
     std::string parseErr;
     Json cacheJson = Json::parse(readFile(cacheFileName), parseErr);
+    if(!parseErr.empty()) {
+        log("Could not read cache: ", parseErr);
+    }
 
     /* Will be true if computeColor is called, basically if cache is missing
      * or CRC changed in zip for any file */
@@ -125,37 +147,40 @@ bool BlockColors::isLoaded() const
 
 SDL_Color BlockColors::computeColor(const ZipArchiveEntry::Ptr& blockImage)
 {
-    //The returned color
-    SDL_Color ret;
-
-    //The average pixel values during computation
-    unsigned avgR = 0, avgG = 0, avgB = 0;
+    /* computeColor method: For each non-transparent pixel,
+     * count the number of times the pixel color has appeared, grouping
+     * similarly-colored pixels. The highest counted is the color for the block*/
 
     //Get the raw PNG data from the .zip, and decode it into pixels
     std::vector<char> pngBytes = readZipEntry(blockImage);
     std::vector<unsigned char> pixels;
     unsigned w = 0, h = 0;
     lodepng::decode(pixels, w, h, (const unsigned char*)pngBytes.data(), pngBytes.size());
-    int nPixels = w * h;
+
+    /* A map to map a {color range -> use counts}. These are a number of "buckets"
+     * that colors are grouped into to find the most used. By using SimilarColorCompare
+     * as the comparison, similar colors are said to be equal, effectively grouping them
+     * in the map */
+    std::map<SDL_Color, unsigned, SimilarColorCompare> colorCounts;
 
     //Add colors over the pixels that are not transparent
-    for(unsigned i = 0; i != pixels.size(); i += 4) {
+    for(unsigned i = 0; i != pixels.size(); i += 4)
+    {
         Uint8 r = pixels[i+0],
          g = pixels[i+1],
          b = pixels[i+2],
          a = pixels[i+3];
-
         if(a != SDL_ALPHA_TRANSPARENT) {
-            avgR += r;
-            avgG += g;
-            avgB += b;
+            colorCounts[SDL_Color{r,g,b,a}] += 1;
         }
     }
 
-    //Store average color, full alpha
-    ret = {Uint8(avgR/nPixels), Uint8(avgG/nPixels), Uint8(avgB/nPixels), SDL_ALPHA_OPAQUE};
+    //Get iterator to element in map with most use counts
+    auto it = std::max_element(colorCounts.begin(), colorCounts.end(),
+        [](auto& p0, auto& p1) { return p0.second < p1.second; });
 
-    return ret;
+    //Return mapped type at that iterator; the color
+    return it->first;
 }
 
 std::vector<char> BlockColors::readZipEntry(const ZipArchiveEntry::Ptr& blockImage)
@@ -188,8 +213,7 @@ void BlockColors::saveNewJsonCache() const
             Uint32 pixel = SDL_MapRGBA(rgba, color.r, color.g, color.b, color.a);
 
             //This is not fun.
-            file << "\t\"" << id << "\":" << "{\"crc\":" << std::to_string(crc)
-                 << ", \"color\":" << std::to_string(pixel) << "}";
+            file << "\t\"" << id << "\":" << "{\"crc\":" << crc << ", \"color\":" << pixel << "}";
 
             //Add a comma if not last element
             auto it2 = it;
