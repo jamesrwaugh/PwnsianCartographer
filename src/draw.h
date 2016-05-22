@@ -37,7 +37,7 @@ SDL_Surface* renderChunk(nbt_node* chunk);
 SDL_Surface* renderRegion(RegionFile& region);
 
 /* Renders a world, returns an RGBA SDL_Surface of the image.
- * Can be saved by lodepng::encode on (unsigned char*)surface->pixels */
+ * CAn be saved by lodepng::encode on (unsigned char*)surface->pixels */
 SDL_Surface* renderWorld(const RegionFileWorld& world);
 
 }

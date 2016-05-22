@@ -20,38 +20,32 @@ int main(int argc, char** argv)
     try
     {
     #if 0
-        #if 0
         RegionFile file(argv[1]);
-        RegionFile::ChunkMap chunks = file.getAllChunks();
-        std::cout << chunks.size() << " Chunks..." << std::endl;
-        for(const auto& pair : chunks)
-        {
-            ChunkInterface iface(pair.second);
-            unsigned id = iface.getBlockID(0,0,0);
+        #if 1
+        SDL_Surface* render = draw::renderRegion(file);
+        lodepng::encode("output-region.png", (unsigned char*)render->pixels, 32*16, 32*16);
 
-            std::cout << "========================================" << std::endl;
-            std::cout << pair.first.first << " " << pair.first.second << std::endl;
-            std::cout << "========================================" << std::endl;
-            std::cout << nbt_dump_ascii(pair.second) << std::endl;
-            std::cout << "========================================" << std::endl;
-        }
-        #else
+        /*
         blocks::BlockColors colors;
         colors.load("items.zip", "items_color_cache.json");
-        colors.getBlockColor(429);
+        colors.getBlockColor(429);*/
         #endif
     #else
         RegionFileWorld file(argv[1]);
         SDL_Point size = file.getSize();
         log("Size:", size.x, " ", size.y);
-        #if 0
+        #if 1
         for(auto& pair : file.regionMap())
         {
-            RegionFile& region = pair.second;
-            if(region.hasChunk(0,0)) {
-                char* ascii = nbt_dump_ascii(region.getChunkNBT(0,0));
-                std::cout << pair.first.first << " " << pair.first.second << " -> " << ascii << std::endl;
-            }
+            SDL_Surface* render = draw::renderRegion(pair.second);
+
+            //Write the result
+            std::stringstream ss;
+            ss << "output-" << pair.first.first <<  "-" << pair.first.second << ".png";
+            std::cout << ss.str() << std::endl;
+            lodepng::encode(ss.str(), (unsigned char*)render->pixels, 32*16, 32*16);
+
+            SDL_FreeSurface(render);
         }
         #else
         for(auto& pair : file.regionMap())
