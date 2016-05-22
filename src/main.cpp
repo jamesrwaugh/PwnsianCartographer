@@ -42,6 +42,8 @@ int main(int argc, char** argv)
         #endif
     #else
         RegionFileWorld file(argv[1]);
+        SDL_Point size = file.getSize();
+        log("Size:", size.x, " ", size.y);
         #if 0
         for(auto& pair : file.regionMap())
         {
@@ -58,13 +60,14 @@ int main(int argc, char** argv)
             for(const RegionFile::ChunkMap::value_type& pair : region.getAllChunks())
             {
                 //Render a chunk to a lodepng-readable array
-                draw::ChunkRender render;
-                draw::renderChunk(pair.second, render);
+                SDL_Surface* render = draw::renderChunk(pair.second);
 
                 //Write the result
                 std::stringstream ss;
                 ss << "output-" << pair.first.first <<  "-" << pair.first.second << ".png";
-                lodepng::encode(ss.str(), &render[0], 16, 16);
+                lodepng::encode(ss.str(), (unsigned char*)render->pixels, 16, 16);
+
+                SDL_FreeSurface(render);
             }
         }
         #endif

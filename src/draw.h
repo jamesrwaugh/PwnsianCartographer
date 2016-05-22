@@ -21,18 +21,24 @@ typedef std::vector<unsigned char> png;
  * Vector size: 16x16x4 */
 typedef std::vector<unsigned char> ChunkRender;
 
-}
+/* 512x512 array of RGBA pixels, render of a region (32x32 chunks)
+ * Vector size: 512x512x4 */
+typedef std::vector<unsigned char> RegionRender;
 
+}
 
 namespace draw
 {
 
 //Temp exposure: Render a single chunk
-void renderChunk(nbt_node* chunk, ChunkRender& out);
+SDL_Surface* renderChunk(nbt_node* chunk);
 
-/* Renders a world, and returns a lodePNG in out.
- * It should be saved directly by lodepng::savefile or similar */
-bool renderWorld(const RegionFileWorld& world, png& out);
+//Temp exposure: Render a single region
+SDL_Surface* renderRegion(RegionFile& region);
+
+/* Renders a world, returns an RGBA SDL_Surface of the image.
+ * Can be saved by lodepng::encode on (unsigned char*)surface->pixels */
+SDL_Surface* renderWorld(const RegionFileWorld& world);
 
 }
 

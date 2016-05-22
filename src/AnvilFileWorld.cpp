@@ -54,9 +54,10 @@ SDL_Point RegionFileWorld::getSize()
     }
 
     /* What we're looking for is the total block count that
-     * this world encompasses. This is 32 * region distance in
-     * both positive/negative X/Z directions */
-    return { 32*16*(maxx+minx), 32*16*(maxz+minz) };
+     * this world encompasses. This is 32 * {region distance in
+     * both positive/negative X/Z directions} */
+    return { 32*16*(abs(maxx)+abs(minx)),
+             32*16*(abs(maxz)+abs(minz)) };
 }
 
 std::pair<bool,RegionFileWorld::RegionCoord>
