@@ -57,12 +57,15 @@ int main(int argc, char** argv)
             RegionFile& region = pair.second;
             for(const RegionFile::ChunkMap::value_type& pair : region.getAllChunks())
             {
+                //Render a chunk to a lodepng-readable array
                 draw::ChunkRender render;
                 draw::renderChunk(pair.second, render);
-                lodepng::encode("output.png", &render[0], 16, 16);
-                break;
+
+                //Write the result
+                std::stringstream ss;
+                ss << "output-" << pair.first.first <<  "-" << pair.first.second << ".png";
+                lodepng::encode(ss.str(), &render[0], 16, 16);
             }
-            break;
         }
         #endif
     #endif

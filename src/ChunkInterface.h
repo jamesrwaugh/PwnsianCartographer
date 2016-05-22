@@ -57,7 +57,9 @@ private:
     int* heightMap;
     bool haveHeightMap;
 
-    //Map of known Y section to their outer section data
+    /* Map of known Y section to their outer section data
+     * "loadYSection" looks up a Y section in "chunk" and adds
+     * it to ySecitonMap for use */
     std::map<int, Section> ySectionMap;
     void loadYSection(int y);
 

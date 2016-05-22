@@ -7,12 +7,15 @@
 namespace nbtPredicates
 {
 
+/* Used to locate a node which has a Tag_Byte("Y") directly below it
+ * equal to the one passed in "aux" */
+
 bool findYSection(const nbt_node* node, void* aux)
 {
     nbt_node* y = nbt_find_by_name((nbt_node*)node, "Y");
     if(y) {
         int neededY = *(int*)aux;
-        return y->payload.tag_byte == neededY ;
+        return y->payload.tag_byte == neededY;
     }
     return false;
 }
@@ -35,12 +38,19 @@ unsigned ChunkInterface::getBlockID(int x, int y, int z)
     int ySection = absoluteYToSection(y);
     loadYSection(ySection);
 
+    /* The actual Y coordinate is relative to the section, not the whole
+     * chunk */
+    int sectionY = y % 16;
+
     /* Get the ID from the section above. If the "Add" array is there,
      * it represents an upper 8 bits of the block ID */
+    int index = sectionY*16*16 + z*16 + x;
+
     Section& section = ySectionMap[ySection];
-    unsigned id = section.Blocks[y*16*16 + z*16 + x];
+    unsigned id = section.Blocks[index];
+    //std::vector<byte> blockCopy(section.Blocks, section.Blocks+4096);
     if(section.Add) {
-        byte upperID = section.Add[y*16*16 + z*16 + x];
+        byte upperID = section.Add[index];
         id |= (upperID << 8);
     }
 
@@ -63,10 +73,14 @@ unsigned ChunkInterface::getHighestSolidBlockID(int x, int z)
         error("Failed to find heightmap in chunk");
     }
 
-    /* Return the block at X and Z, where the Y is the heightmap of that
-     * X and Z. heightMap at that location will be the lowest location
-     * where light is at full strength (i.e, the highest block ) */
-    return getBlockID(x, heightMap[z*16 + x], z);
+    /* Return the block at X Y Z, where the Y is the heightmap-1 of that
+     * X and Z. heightMap at that X,Z location will be the lowest location
+     * where light is at full strength, which is air.
+     * So, subtracting 1 is the block directly under that. (highest solid) */
+    int y = heightMap[z*16 + x] - 1;
+    if(y < 0) y = 0;
+
+    return getBlockID(x, y, z);
 }
 
 void ChunkInterface::loadYSection(int y)
@@ -81,18 +95,24 @@ void ChunkInterface::loadYSection(int y)
         return;
     }
 
-    //A TAG_Compound of all sections in the chunk
+    //A TAG_Compound of all sections in the chunk...
     nbt_node* sections = nbt_find_by_path(chunk, ".Level.Sections");
 
-    //Find the section with the Y index we're looking for
+    //...Find the section with the Y index we're looking for
     nbt_node* neededSecion = nbt_find(sections, nbtPredicates::findYSection, &y);
+
+    //Friendly check
+    if(!sections || !neededSecion) {
+        error("Failed to find Y section ", y, " in chunk");
+    }
+
+    //We've found it now, so store in the section cache
     if(neededSecion) {
-        //Fill in the secion map
-        Section& found = ySectionMap[y];
-        found.Y = y;
-        found.Blocks     = getByteArray(neededSecion, "Blocks");
-        found.Add        = getByteArray(neededSecion, "Add");
-        found.BlockLight = getByteArray(neededSecion, "BlockLight");
+        Section& newSection = ySectionMap[y];
+        newSection.Y = y;
+        newSection.Blocks     = getByteArray(neededSecion, "Blocks");
+        newSection.Add        = getByteArray(neededSecion, "Add");
+        newSection.BlockLight = getByteArray(neededSecion, "BlockLight");
     }
 }
 

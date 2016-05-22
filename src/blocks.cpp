@@ -163,7 +163,10 @@ SDL_Color BlockColors::computeColor(const ZipArchiveEntry::Ptr& blockImage)
      * in the map */
     std::map<SDL_Color, unsigned, SimilarColorCompare> colorCounts;
 
-    //Add colors over the pixels that are not transparent
+    /* Add colors over the pixels that are not transparent
+     * The recorded color is the RGA value with 255 alpha, for now,
+     * To prevent solid blocks like grass having transparency because the
+     * first zero-alpha pixel being not 255 alpha */
     for(unsigned i = 0; i != pixels.size(); i += 4)
     {
         Uint8 r = pixels[i+0],
@@ -171,7 +174,7 @@ SDL_Color BlockColors::computeColor(const ZipArchiveEntry::Ptr& blockImage)
          b = pixels[i+2],
          a = pixels[i+3];
         if(a != SDL_ALPHA_TRANSPARENT) {
-            colorCounts[SDL_Color{r,g,b,a}] += 1;
+            colorCounts[SDL_Color{r,g,b,SDL_ALPHA_OPAQUE}] += 1;
         }
     }
 
@@ -204,32 +207,37 @@ std::vector<char> BlockColors::readZipEntry(const ZipArchiveEntry::Ptr& blockIma
 void BlockColors::saveNewJsonCache() const
 {
     std::ofstream file(cacheFileName);
-    if(file.is_open())
-    {
-        file << "{\n";
-        for(auto it = blockColors.begin(); it != blockColors.end(); ++it)
-        {
-            std::string id = it->first; //BlockID -> string conversion
-            auto&& value = it->second;
-
-            //Convience
-            SDL_Color color = value.first;
-            unsigned crc = value.second;
-            Uint32 pixel = SDL_MapRGBA(rgba, color.r, color.g, color.b, color.a);
-
-            //This is not fun.
-            file << "\t\"" << id << "\":" << "{\"crc\":" << crc << ", \"color\":" << pixel << "}";
-
-            //Add a comma if not last element
-            auto it2 = it;
-            if(++it2 != blockColors.end()) {
-                file << ',';
-            }
-
-            file << '\n';
-        }
-        file << "}";
+    if(!file.is_open()) {
+        error("Could not open ", cacheFileName, " for writing new cahce");
     }
+
+    /* The method here is to build strings to create JSON manually.
+     * Currently, json11 doesn't support adding to objects */
+
+    file << "{\n";
+    for(auto it = blockColors.begin(); it != blockColors.end(); ++it)
+    {
+        std::string id = it->first; //BlockID -> string conversion
+        auto&& value = it->second;
+
+        //Convience
+        SDL_Color color = value.first;
+        unsigned crc = value.second;
+        Uint32 pixel = SDL_MapRGBA(rgba, color.r, color.g, color.b, color.a);
+
+        //This is not fun.
+        file << "\t\"" << id << "\":" << "{\"crc\":" << crc << ", \"color\":" << pixel << "}";
+
+        //Add a comma if not last element
+        auto it2 = it;
+        if(++it2 != blockColors.end()) {
+            file << ',';
+        }
+
+        file << '\n';
+    }
+    file << "}";
+
     file.close();
 }
 

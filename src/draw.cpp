@@ -24,7 +24,8 @@ void renderChunk(nbt_node* chunk, ChunkRender& out)
     for(int z = 0; z != 16; ++z)
     for(int x = 0; x != 16; ++x)
     {
-        unsigned id = iface.getBlockID(x,3,z);
+        unsigned id = iface.getHighestSolidBlockID(x,z);
+        //unsigned id = 2;
         SDL_Color color = colors.getBlockColor(id);
 
         /* The 4* accounts for there being 4 places in the array
