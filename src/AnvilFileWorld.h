@@ -22,7 +22,7 @@ public:
     RegionFileWorld(std::string rootpath);
 
     //Return all the regions
-    RegionMap& regionMap();
+    RegionMap& getAllRegions();
 
     //Get X/Z size of the world in blocks
     SDL_Point getSize();

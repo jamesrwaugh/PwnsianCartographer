@@ -3,13 +3,12 @@
 
 #include <SDL2/SDL.h>
 #include <string>
+#include <map>
 #include "ZipLib/ZipArchiveEntry.h"
 
 /* Routines to handle returning RGB values for
  * block IDs, and misc utility color functions.
  * This loads png images from a .zip to get average colors */
-
-#include "draw.h"
 
 namespace blocks
 {

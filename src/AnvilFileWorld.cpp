@@ -36,7 +36,7 @@ RegionFileWorld::RegionFileWorld(std::string rootpath)
     }
 }
 
-RegionFileWorld::RegionMap& RegionFileWorld::regionMap()
+RegionFileWorld::RegionMap& RegionFileWorld::getAllRegions()
 {
     return regions;
 }
@@ -45,7 +45,7 @@ SDL_Point RegionFileWorld::getSize()
 {
     //Given the region coordinates, find out min and max
     int minx = 0, minz = 0, maxx = 0, maxz = 0;
-    for(auto& pair : regionMap())
+    for(auto& pair : getAllRegions())
     {
         minx = std::min(minx, pair.first.first);
         minz = std::min(minz, pair.first.second);

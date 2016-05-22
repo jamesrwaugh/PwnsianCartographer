@@ -1,3 +1,4 @@
+#include <fstream>
 #include "lodepng.h"
 #include "json11.hpp"
 #include "ZipLib/ZipFile.h"
@@ -247,7 +248,7 @@ SDL_Color BlockColors::getBlockColor(unsigned id, unsigned meta) const
     if(it != blockColors.end()) {
         return it->second.first;
     }
-    return {0, 0, 0, 0}; //Block not known--return transparent color
+    return {255, 20, 147, 255}; //Block not known--return transparent color
 }
 
 //This forumla can be found on Wikipedia or similar, searching for "rgb to hsv"

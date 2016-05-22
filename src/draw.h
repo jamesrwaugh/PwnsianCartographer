@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "types.h"
+#include "blocks.h"
 #include "AnvilFile.h"
 #include "AnvilFileWorld.h"
 #include "nbt/nbt.h"
@@ -14,31 +15,34 @@
 namespace draw
 {
 
-//Type represneting a lodePNG image
-typedef std::vector<unsigned char> png;
-
-/* 16x16 array of RGBA pixels, render of a chunk.
- * Vector size: 16x16x4 */
-typedef std::vector<unsigned char> ChunkRender;
-
-/* 512x512 array of RGBA pixels, render of a region (32x32 chunks)
- * Vector size: 512x512x4 */
-typedef std::vector<unsigned char> RegionRender;
-
-}
-
-namespace draw
+class Drawer
 {
+public:
+    /* Generic public helper function to save a surface to a PNG given by
+     * "filename" */
+    static bool saveSurfacePNG(SDL_Surface* surface, const std::string& filename);
 
-//Temp exposure: Render a single chunk
-SDL_Surface* renderChunk(nbt_node* chunk);
+public:
+    Drawer();
 
-//Temp exposure: Render a single region
-SDL_Surface* renderRegion(RegionFile& region);
+    //Render a single chunk to a surface
+    SDL_Surface* renderChunk(nbt_node* chunk);
 
-/* Renders a world, returns an RGBA SDL_Surface of the image.
- * CAn be saved by lodepng::encode on (unsigned char*)surface->pixels */
-SDL_Surface* renderWorld(const RegionFileWorld& world);
+    //Render a single region to a surface
+    SDL_Surface* renderRegion(RegionFile& region);
+
+    /* Renders a world, returns an RGBA SDL_Surface of the image.
+     * Can be saved by lodepng::encode on (unsigned char*)surface->pixels */
+    SDL_Surface* renderWorld(RegionFileWorld &world);
+
+private:
+    /* Utility to create a 32-bit RGBA surface with w/h,
+     * taking endianness into account */
+    SDL_Surface* createRGBASurface(int w, int h);
+
+    //Item to get colors based on block IDs
+    blocks::BlockColors colors;
+};
 
 }
 

@@ -33,11 +33,16 @@ int main(int argc, char** argv)
     #else
         RegionFileWorld file(argv[1]);
         SDL_Point size = file.getSize();
-        log("Size:", size.x, " ", size.y);
-        #if 1
-        for(auto& pair : file.regionMap())
+        log("Size:", size.x, " " , size.y);
+    #if 1
+        draw::Drawer drawer;
+        SDL_Surface* surface = drawer.renderWorld(file);
+        draw::Drawer::saveSurfacePNG(surface, "output-world.png");
+    #endif
+        #if 0
+        for(auto& pair : file.getAllRegions())
         {
-            SDL_Surface* render = draw::renderRegion(pair.second);
+            SDL_Surface* render = drawer.renderRegion(pair.second);
 
             //Write the result
             std::stringstream ss;
@@ -48,27 +53,12 @@ int main(int argc, char** argv)
             SDL_FreeSurface(render);
         }
         #else
-        for(auto& pair : file.regionMap())
-        {
-            RegionFile& region = pair.second;
-            for(const RegionFile::ChunkMap::value_type& pair : region.getAllChunks())
-            {
-                //Render a chunk to a lodepng-readable array
-                SDL_Surface* render = draw::renderChunk(pair.second);
 
-                //Write the result
-                std::stringstream ss;
-                ss << "output-" << pair.first.first <<  "-" << pair.first.second << ".png";
-                lodepng::encode(ss.str(), (unsigned char*)render->pixels, 16, 16);
-
-                SDL_FreeSurface(render);
-            }
-        }
         #endif
     #endif
     }
     catch(std::exception& ex) {
-        log("Problem: ", ex.what());
+        log("Something Happened: ", ex.what());
         exit(1);
     }
 
