@@ -1,0 +1,19 @@
+if (file.length() < SECTOR_BYTES) {
+    /* we need to write the chunk offset table */
+    for (int i = 0; i < SECTOR_INTS; ++i) {
+        file.writeInt(0);
+    }
+    // write another sector for the timestamp info
+    for (int i = 0; i < SECTOR_INTS; ++i) {
+        file.writeInt(0);
+    }
+
+    sizeDelta += SECTOR_BYTES * 2;
+}
+
+if ((file.length() & 0xfff) != 0) {
+    /* the file size is not a multiple of 4KB, grow it */
+    for (int i = 0; i < (file.length() & 0xfff); ++i) {
+        file.write((byte) 0);
+    }
+}
