@@ -1,38 +1,40 @@
 #include <SDL2/SDL.h>
+#include "blocks.h"
+#include "ChunkInterface.h"
 #include "draw.h"
-
-//Type definitions
-// ============================================================================
-namespace draw
-{
-
-struct pixel
-{
-    union {
-        byte r, g, b, a;
-        int value;
-    };
-};
-
-//16x16 array of pixels, render of a chunk
-typedef std::array<std::array<pixel,16>,16> ChunkRender;
-
-//PNG datatype
-typedef std::vector<unsigned char> png;
-
-}
 
 //Low-level functions
 // ============================================================================
 namespace draw
 {
 
-bool renderChunk(const nbt_node* chunk, ChunkRender& out)
+void renderChunk(nbt_node* chunk, ChunkRender& out)
 {
-    //We need to look in the HeightMap to tell us where the highed solid block is
+    //Wrapper to tell us info about the ID at a position
+    ChunkInterface iface(chunk);
 
+    //Item to get colors for a given ID
+    blocks::BlockColors colors;
+    colors.load("items.zip", "items_color_cache.json");
 
-    //Then, take the last 16x16 blocks off the back
+    //256 RGBA pixels
+    out.resize(16*16*4);
+
+    //This is where it all comes together!
+    for(int z = 0; z != 16; ++z)
+    for(int x = 0; x != 16; ++x)
+    {
+        unsigned id = iface.getBlockID(x,3,z);
+        SDL_Color color = colors.getBlockColor(id);
+
+        /* The 4* accounts for there being 4 places in the array
+         * for each color. */
+        unsigned index = 4*(16*z + x);
+        out[index + 0] = color.r;
+        out[index + 1] = color.g;
+        out[index + 2] = color.b;
+        out[index + 3] = color.a;
+    }
 }
 
 }
@@ -42,12 +44,9 @@ bool renderChunk(const nbt_node* chunk, ChunkRender& out)
 namespace draw
 {
 
-bool renderWorld(RegionFileWorld& world, png& out)
+bool renderWorld(RegionFileWorld&, png&)
 {
-    for(auto& pair : world.regionMap())
-    {
-
-    }
+    return false;
 }
 
 }

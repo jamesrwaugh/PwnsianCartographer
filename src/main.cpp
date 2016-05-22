@@ -7,6 +7,7 @@
 #include "AnvilFile.h"
 #include "AnvilFileWorld.h"
 #include "ChunkInterface.h"
+#include "draw.h"
 #include "utility.h"
 
 int main(int argc, char** argv)
@@ -18,7 +19,7 @@ int main(int argc, char** argv)
 
     try
     {
-    #if 1
+    #if 0
         #if 0
         RegionFile file(argv[1]);
         RegionFile::ChunkMap chunks = file.getAllChunks();
@@ -41,6 +42,7 @@ int main(int argc, char** argv)
         #endif
     #else
         RegionFileWorld file(argv[1]);
+        #if 0
         for(auto& pair : file.regionMap())
         {
             RegionFile& region = pair.second;
@@ -49,6 +51,20 @@ int main(int argc, char** argv)
                 std::cout << pair.first.first << " " << pair.first.second << " -> " << ascii << std::endl;
             }
         }
+        #else
+        for(auto& pair : file.regionMap())
+        {
+            RegionFile& region = pair.second;
+            for(const RegionFile::ChunkMap::value_type& pair : region.getAllChunks())
+            {
+                draw::ChunkRender render;
+                draw::renderChunk(pair.second, render);
+                lodepng::encode("output.png", &render[0], 16, 16);
+                break;
+            }
+            break;
+        }
+        #endif
     #endif
     }
     catch(std::exception& ex) {

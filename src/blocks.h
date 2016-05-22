@@ -62,6 +62,10 @@ public:
      * png for its ID */
     SDL_Color getBlockColor(unsigned id, unsigned meta = 0) const;
 
+    /* Return the pixel format used in color operations.
+     * Can be useful outside BlockColors */
+    const SDL_PixelFormat* pixelFormat() const;
+
     /* If we have valid .zip data or not */
     bool isLoaded() const;
 
@@ -72,7 +76,7 @@ private:
     //See isLoaded()
     bool loaded;
 
-    //SDL Pixel format for converting pixels to RGBA values and bac;
+    //SDL Pixel format for converting pixels to RGBA values and back;
     //is always SDL_PIXELFORMAT_RGBA8888
     SDL_PixelFormat* rgba;
 

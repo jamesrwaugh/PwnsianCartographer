@@ -2,6 +2,7 @@
 #define ANVILFILEWORLD_H
 
 #include <map>
+#include <SDL2/SDL.h>
 #include "AnvilFile.h"
 
 /* RegionFileWorld is a world of regions. it traverses
@@ -23,10 +24,16 @@ public:
     //Return all the regions
     RegionMap& regionMap();
 
+    //Get X/Z size of the world in blocks
+    SDL_Point getSize();
+
 private:
     //From a r.1.-1.mca, get the 1 and -1. Also validates the name.
     // return.first == true if valid, return.second is the value if value
     std::pair<bool,RegionCoord> parseFilename(const std::string& filename);
+
+    //Has getSize() been calculated before?
+    bool knowSize = false;
 
     /* Stored regions. Maps a pair of integers, such as
      * -1,0 to the .mca region. */

@@ -26,13 +26,10 @@
 *.exe
 *.out
 *.app
-<<<<<<< HEAD
 
 #Backup files
 *~
 
 #QT Creator
 *.pro.user
-
-=======
->>>>>>> 5424ba8179fe63035071b9116888d65594668d06
+build-*

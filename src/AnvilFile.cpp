@@ -138,8 +138,6 @@ void RegionFile::load(const std::string& path)
     offsets.resize(SECTOR_INTS, 0);
     chunkTimestamps.resize(SECTOR_INTS, 0);
 
-    debugln("REGION LOAD " + fileName);
-
     try
     {
         file.open(path, std::fstream::in | std::fstream::binary);
@@ -211,7 +209,7 @@ nbt_node* RegionFile::getChunkNBT(int x, int z)
         return nullptr;
     }
     if(!hasChunk(x,z)) {
-        debugln("READ ", x, z, " has no chunk here");
+        //debugln("READ ", x, z, " has no chunk here");
         return nullptr;
     }
     //Check to see if we've cached it before

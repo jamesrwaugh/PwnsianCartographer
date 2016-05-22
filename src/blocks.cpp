@@ -177,10 +177,15 @@ SDL_Color BlockColors::computeColor(const ZipArchiveEntry::Ptr& blockImage)
 
     //Get iterator to element in map with most use counts
     auto it = std::max_element(colorCounts.begin(), colorCounts.end(),
-        [](auto& p0, auto& p1) { return p0.second < p1.second; });
+        [](auto& pair0, auto& pair1) { return pair0.second < pair1.second; });
 
-    //Return mapped type at that iterator; the color
+    //Return key type at that iterator; the color
     return it->first;
+}
+
+const SDL_PixelFormat* BlockColors::pixelFormat() const
+{
+    return rgba;
 }
 
 std::vector<char> BlockColors::readZipEntry(const ZipArchiveEntry::Ptr& blockImage)

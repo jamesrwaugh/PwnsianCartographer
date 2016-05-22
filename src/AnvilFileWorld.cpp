@@ -3,6 +3,7 @@
 #else
  #include <dirent.h>
 #endif
+#include <algorithm>
 
 #include "utility.h"
 #include "AnvilFileWorld.h"
@@ -38,6 +39,24 @@ RegionFileWorld::RegionFileWorld(std::string rootpath)
 RegionFileWorld::RegionMap& RegionFileWorld::regionMap()
 {
     return regions;
+}
+
+SDL_Point RegionFileWorld::getSize()
+{
+    //Given the region coordinates, find out min and max
+    int minx = 0, minz = 0, maxx = 0, maxz = 0;
+    for(auto& pair : regionMap())
+    {
+        minx = std::min(minx, pair.first.first);
+        minz = std::min(minz, pair.first.second);
+        maxx = std::max(maxx, pair.first.first);
+        maxz = std::max(maxz, pair.first.second);
+    }
+
+    /* What we're looking for is the total block count that
+     * this world encompasses. This is 32 * region distance in
+     * both positive/negative X/Z directions */
+    return { 32*16*(maxx+minx), 32*16*(maxz+minz) };
 }
 
 std::pair<bool,RegionFileWorld::RegionCoord>
