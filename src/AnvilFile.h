@@ -3,7 +3,6 @@
 
 #include <string>
 #include <vector>
-#include <exception>
 #include <fstream>
 #include <map>
 
@@ -17,7 +16,7 @@ class RegionFile
 {
 public:
     //X/Z pairs representing a chunk position
-    typedef std::pair<int,int> ChunkCoord;
+    typedef MC_Point ChunkCoord;
 
     //Map of chunk coordinates to their cached NBT data
     typedef std::map<ChunkCoord, nbt_node*> ChunkMap;

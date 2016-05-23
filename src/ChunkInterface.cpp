@@ -48,7 +48,6 @@ unsigned ChunkInterface::getBlockID(int x, int y, int z)
 
     Section& section = ySectionMap[ySection];
     unsigned id = section.Blocks[index];
-    //std::vector<byte> blockCopy(section.Blocks, section.Blocks+4096);
     if(section.Add) {
         byte upperID = section.Add[index];
         id |= (upperID << 8);

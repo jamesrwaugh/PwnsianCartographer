@@ -85,10 +85,6 @@ private:
     //Give us a single color for a block from the .zip
     SDL_Color computeColor(const ZipArchiveEntry::Ptr& blockImage);
 
-    //Convert RGB to HSV
-    //The results r,g,b become the h,s,v
-    SDL_Color rgb2hsv(const SDL_Color& rgb);
-
     //Writes out a new JSON cache, in case of computeColor being used
     void saveNewJsonCache() const;
 

@@ -12,11 +12,13 @@
 class RegionFileWorld
 {
 public:
-    //- A region coordinate such as -1,2 from the .mca filenames
+    //- A region coordinate such as -1,2 -- from the .mca filenames
+    typedef MC_Point RegionCoord;
+
     //- Map type for {-1,2} -> RegionData
-    typedef std::pair<int,int> RegionCoord;
     typedef std::map<RegionCoord, RegionFile> RegionMap;
 
+public:
     /* Initialize from the root of a Minecraft world.
      * i.e, where level.dat is located. This will load the rest. */
     RegionFileWorld(std::string rootpath);
@@ -25,7 +27,7 @@ public:
     RegionMap& getAllRegions();
 
     //Get X/Z size of the world in blocks
-    SDL_Point getSize();
+    MC_Point getSize();
 
 private:
     //From a r.1.-1.mca, get the 1 and -1. Also validates the name.

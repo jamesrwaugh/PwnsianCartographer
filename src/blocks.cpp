@@ -251,44 +251,4 @@ SDL_Color BlockColors::getBlockColor(unsigned id, unsigned meta) const
     return {255, 20, 147, 255}; //Block not known--return transparent color
 }
 
-//This forumla can be found on Wikipedia or similar, searching for "rgb to hsv"
-SDL_Color BlockColors::rgb2hsv(const SDL_Color& rgb)
-{
-    int r = rgb.r, g = rgb.g, b = rgb.b;
-
-    double maxC = b;
-    if (maxC < g) maxC = g;
-    if (maxC < r) maxC = r;
-    double minC = b;
-    if (minC > g) minC = g;
-    if (minC > r) minC = r;
-
-    double delta = maxC - minC;
-
-    double V = maxC;
-    double S = 0;
-    double H = 0;
-
-    if (delta == 0) {
-        H = 0;
-        S = 0;
-    } else {
-        S = delta / maxC;
-        double dR = 60*(maxC - r)/delta + 180;
-        double dG = 60*(maxC - g)/delta + 180;
-        double dB = 60*(maxC - b)/delta + 180;
-        if (r == maxC)
-            H = dB - dG;
-        else if (g == maxC)
-            H = 120 + dR - dB;
-        else
-            H = 240 + dG - dR;
-    }
-
-    if (H<0)   H+=360;
-    if (H>=360)H-=360;
-
-    return {Uint8(H), Uint8(S), Uint8(V), SDL_ALPHA_OPAQUE};
-}
-
 }

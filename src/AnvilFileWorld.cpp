@@ -41,23 +41,23 @@ RegionFileWorld::RegionMap& RegionFileWorld::getAllRegions()
     return regions;
 }
 
-SDL_Point RegionFileWorld::getSize()
+MC_Point RegionFileWorld::getSize()
 {
     //Given the region coordinates, find out min and max
     int minx = 0, minz = 0, maxx = 0, maxz = 0;
     for(auto& pair : getAllRegions())
     {
-        minx = std::min(minx, pair.first.first);
-        minz = std::min(minz, pair.first.second);
-        maxx = std::max(maxx, pair.first.first);
-        maxz = std::max(maxz, pair.first.second);
+        minx = std::min(minx, pair.first.x);
+        minz = std::min(minz, pair.first.z);
+        maxx = std::max(maxx, pair.first.x);
+        maxz = std::max(maxz, pair.first.z);
     }
 
     /* What we're looking for is the total block count that
      * this world encompasses. This is 32 * {region distance in
      * both positive/negative X/Z directions} */
-    return { 32*16*(abs(maxx)+abs(minx)),
-             32*16*(abs(maxz)+abs(minz)) };
+    return { 32*16*(abs(maxx)+abs(minx)+1),
+             32*16*(abs(maxz)+abs(minz)+1) };
 }
 
 std::pair<bool,RegionFileWorld::RegionCoord>

@@ -3,25 +3,22 @@
 
 #include <array>
 #include <vector>
-
 #include "types.h"
 #include "blocks.h"
 #include "AnvilFile.h"
 #include "AnvilFileWorld.h"
 #include "nbt/nbt.h"
 
-/* Routines to draw colors based on an NBT chunk node */
+/* Rendering section of code. Contains Drawer, which is a classed used
+ * to render chunks, regons, and entire worlds to SDL_Surfaces. */
 
 namespace draw
 {
 
+/* Main world rendering class */
+
 class Drawer
 {
-public:
-    /* Generic public helper function to save a surface to a PNG given by
-     * "filename" */
-    static bool saveSurfacePNG(SDL_Surface* surface, const std::string& filename);
-
 public:
     Drawer();
 
@@ -40,9 +37,26 @@ private:
      * taking endianness into account */
     SDL_Surface* createRGBASurface(int w, int h);
 
+    //Put region-sized (32x32) gridlines on a surface
+    void drawGirdLines(SDL_Surface* s);
+
+    /* This gives us the coordinates of the upper-left region in the world.
+     * i.e, the one the least x and Z positions, such as r.-3.-4.mca
+     * This is used to properly size the final drawing, and draw all regions
+     * relative to the top-left of the image */
+    MC_Point topleftOffset(RegionFileWorld& world);
+
     //Item to get colors based on block IDs
     blocks::BlockColors colors;
 };
+
+}
+
+namespace draw
+{
+
+/* Generic helper function to save a surface to a PNG at "filename" */
+bool saveSurfacePNG(SDL_Surface* surface, const std::string& filename);
 
 }
 

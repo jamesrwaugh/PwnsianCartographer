@@ -32,12 +32,12 @@ int main(int argc, char** argv)
         #endif
     #else
         RegionFileWorld file(argv[1]);
-        SDL_Point size = file.getSize();
-        log("Size:", size.x, " " , size.y);
+        MC_Point size = file.getSize();
+        log("Size:", size.x, " " , size.z);
     #if 1
         draw::Drawer drawer;
         SDL_Surface* surface = drawer.renderWorld(file);
-        draw::Drawer::saveSurfacePNG(surface, "output-world.png");
+        draw::saveSurfacePNG(surface, "output-world.png");
     #endif
         #if 0
         for(auto& pair : file.getAllRegions())
