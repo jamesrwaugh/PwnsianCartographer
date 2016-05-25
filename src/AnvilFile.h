@@ -44,9 +44,9 @@ public:
 private:
 
     //Constants
-    static const int VERSION_GZIP = 1;
-    static const int VERSION_DEFLATE = 2;
+    //Bytes in a file sector
     static const int SECTOR_BYTES = 4096;
+    //Number of ints in a sector
     static const int SECTOR_INTS = SECTOR_BYTES / 4;
 
     //Variabes
@@ -59,14 +59,10 @@ private:
     bool isLoaded;
     bool knowAllChunks;
 
-    // various small debug printing helpers
-    void debugln(const std::string& in);
-    void debug(const std::string& mode, int x, int z, const std::string& in);
-    void debug(const std::string& mode, int x, int z, int count, const std::string& in);
-    void debugln(const std::string& mode, int x, int z, const std::string& in);
-
-    /* is this an invalid chunk coordinate? */
+    //is this an invalid chunk coordinate?
     bool outOfBounds(int x, int z);
+
+    //Return the byte offset of a chunk at X and Z
     int getOffset(int x, int z);
 };
 

@@ -12,7 +12,7 @@ class ChunkInterface
 {
 public:
     /* A "Section" is a 16x16x16 cube of blocks in a chunk. There are up
-     * to 16 sections, with a "Y" from 0 to 15, with 0 being bedrock layer
+     * to 16 sections, with a "Y" from 0 to 15, with 0 being bedrock layer.
      * This is a small interface that points directly into a nbt_node
      * of a chunk Section (i.e, it doesn't own the pointers) */
     struct Section

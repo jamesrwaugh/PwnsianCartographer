@@ -25,8 +25,8 @@ RegionFileWorld::RegionFileWorld(std::string rootpath)
         {
             auto pair = parseFilename(entry->d_name);
             bool isValid = pair.first;
-            RegionCoord coords = pair.second;
             if(isValid) {
+                RegionCoord coords = pair.second;
                 regions[coords].load(rootpath + std::string(entry->d_name));
             }
         }

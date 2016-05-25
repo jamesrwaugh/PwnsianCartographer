@@ -135,44 +135,41 @@ RegionFile::~RegionFile()
 
 void RegionFile::load(const std::string& path)
 {
+    file.open(path, std::fstream::in | std::fstream::binary);
+    if(!file.is_open()) {
+        error("Could not open region file ", path);
+    }
+
+    int fileLength = getLength(file);
     offsets.resize(SECTOR_INTS, 0);
     chunkTimestamps.resize(SECTOR_INTS, 0);
 
-    try
-    {
-        file.open(path, std::fstream::in | std::fstream::binary);
-        int fileLength = getLength(file);
+    /* set up the available sector map. Sectors 0 and 1 are
+     * the regions's metadata, always taken */
+    int nSectors = (int)fileLength / SECTOR_BYTES;
+    sectorFree.resize(nSectors, true);
+    sectorFree[0] = false; // chunk offset table
+    sectorFree[1] = false; // for the last modified info
 
-        /* set up the available sector map. Sectors 0 and 1 are
-         * the regions's metadata, always taken */
-        int nSectors = (int)fileLength / SECTOR_BYTES;
-        sectorFree.resize(nSectors, true);
-        sectorFree[0] = false; // chunk offset table
-        sectorFree[1] = false; // for the last modified info
-
-        //Tell me the byte offset of the chunks
-        file.seekg(0);
-        for (int i = 0; i < SECTOR_INTS; ++i) {
-            unsigned offset = readInt(file);
-            offsets[i] = offset;
-            if (offset != 0 && (offset >> 8) + (offset & 0xFF) <= sectorFree.size()) {
-                for (unsigned sectorNum = 0; sectorNum < (offset & 0xFF); ++sectorNum) {
-                    sectorFree[(offset >> 8) + sectorNum] = false;
-                }
+    //Tell me the byte offset of the chunks
+    file.seekg(0);
+    for (int i = 0; i < SECTOR_INTS; ++i) {
+        unsigned offset = readInt(file);
+        offsets[i] = offset;
+        if (offset != 0 && (offset >> 8) + (offset & 0xFF) <= sectorFree.size()) {
+            for (unsigned sectorNum = 0; sectorNum < (offset & 0xFF); ++sectorNum) {
+                sectorFree[(offset >> 8) + sectorNum] = false;
             }
         }
-
-        //Tell me the timestamps (last saved time) of each chunk
-        for (int i = 0; i < SECTOR_INTS; ++i) {
-            chunkTimestamps[i] = readInt(file);
-        }
-
-        //Mark as being loaded correctly
-        isLoaded = true;
     }
-    catch (std::exception& e) {
-        std::cerr << e.what();
+
+    //Tell me the timestamps (last saved time) of each chunk
+    for (int i = 0; i < SECTOR_INTS; ++i) {
+        chunkTimestamps[i] = readInt(file);
     }
+
+    //Mark as being loaded correctly
+    isLoaded = true;
 }
 
 bool RegionFile::hasChunk(int x, int z)
@@ -209,7 +206,6 @@ nbt_node* RegionFile::getChunkNBT(int x, int z)
         return nullptr;
     }
     if(!hasChunk(x,z)) {
-        //debugln("READ ", x, z, " has no chunk here");
         return nullptr;
     }
     //Check to see if we've cached it before
@@ -219,67 +215,41 @@ nbt_node* RegionFile::getChunkNBT(int x, int z)
     }
 
     //Requires actual file seeks to look it up, now
-    try
-    {
-        //Offset of chunk at x,z
-        int offset = getOffset(x, z);
 
-        /* Calculating 4KB sector number, and number of sectors
-         * that chunk occupies */
-        unsigned sectorNumber = offset >> 8;
-        unsigned numSectors = offset & 0xFF;
-        if (sectorNumber + numSectors > sectorFree.size()) {
-            debugln("READ", x, z, "invalid sector");
-            return nullptr;
-        }
+    //Offset of chunk at x,z in bytes
+    int offset = getOffset(x, z);
 
-        //Length of chunk, first int at sector
-        file.seekg(sectorNumber * SECTOR_BYTES);
-        unsigned length = readInt(file);
-        if (length > SECTOR_BYTES * numSectors) {
-            error("READ", x, z, "invalid length: ", length, " > 4096 * ", numSectors);
-            return nullptr;
-        }
-
-        /* Byte version of compression. Either VERSION_GZIP(1) or VERSION_DEFLATE(2),
-         * But according to Wiki, only 2 is used in practice */
-        byte version = readByte(file);
-        (void)version;
-
-        //Compressed chunk NBT data. What we're after!
-        std::vector<char> data(length);
-        file.read(data.data(), length);
-        nbt_node* nbt = nbt_parse_compressed(data.data(), data.size());
-
-        //Record that we know chunk data at this coordinate before returning
-        knownChunkData[ChunkCoord{x,z}] = nbt;
-
-        //Return NBT data
-        return nbt;
-    }
-    catch (std::exception& e) {
-        error("READ ", x, z, " exception ", e.what());
+    /* Calculating 4KB sector number, and number of sectors
+     * that chunk occupies */
+    unsigned sectorNumber = offset >> 8;
+    unsigned numSectors = offset & 0xFF;
+    if (sectorNumber + numSectors > sectorFree.size()) {
+        log("Chunk: ", x, z, "invalid sector");
         return nullptr;
     }
-}
 
+    //Seek to the chunk. Length of chunk is the first int at sector
+    file.seekg(sectorNumber * SECTOR_BYTES);
+    unsigned length = readInt(file);
+    if (length > SECTOR_BYTES * numSectors) {
+        error("Chunk: ", x, z, "invalid length: ", length, " > 4096 * ", numSectors);
+        return nullptr;
+    }
 
-// various small debug printing helpers
+    /* Next byte: Version of compression. Either GZIP (1) or DEFLATE (2),
+     * But according to Wiki, only 2 is used in practice. Ignoring this */
+    readByte(file);
 
-void RegionFile::debugln(const std::string& in) {
-    log(in, "\n");
-}
+    //Next data: Compressed chunk NBT data. What we're after!
+    std::vector<char> data(length);
+    file.read(data.data(), length);
+    nbt_node* nbt = nbt_parse_compressed(data.data(), data.size());
 
-void RegionFile::debug(const std::string& mode, int x, int z, const std::string& in) {
-    log("REGION ", mode, " ", fileName, "[", x, ",", z, "] = ", in);
-}
+    //Record that we know chunk data at this coordinate before returning
+    knownChunkData[ChunkCoord{x,z}] = nbt;
 
-void RegionFile::debug(const std::string& mode, int x, int z, int count, const std::string& in) {
-    log("REGION " , mode , " " , fileName , "[" , x , "," , z , "] " , count , "B = " , in);
-}
-
-void RegionFile::debugln(const std::string& mode, int x, int z, const std::string& in) {
-    log(mode, x, z, in, "\n");
+    //Return NBT data
+    return nbt;
 }
 
 /* is this an invalid chunk coordinate? */
