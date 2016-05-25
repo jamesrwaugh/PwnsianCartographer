@@ -19,7 +19,7 @@ SDL_Surface* Drawer::renderChunk(nbt_node* chunk)
     //Wrapper to tell us info about the ID at a position
     ChunkInterface iface(chunk);
 
-    //SDL components to draw TODO: Put in class to avoid recreation
+    //SDL components to draw with
     SDL_Surface* surface = createRGBASurface(16, 16);
     SDL_Renderer* renderer = SDL_CreateSoftwareRenderer(surface);
     if(!surface || !renderer) {
@@ -34,7 +34,7 @@ SDL_Surface* Drawer::renderChunk(nbt_node* chunk)
         unsigned id = iface.getHighestSolidBlockID(x,z);
         SDL_Color color = colors.getBlockColor(id);
 
-        //Draw above color on blocks
+        //Draw above color on image
         SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
         SDL_RenderDrawPoint(renderer, x, z);
     }
@@ -67,7 +67,7 @@ SDL_Surface* Drawer::renderWorld(RegionFileWorld& world)
     //Width of a region in blocks
     const int size = 32*16;
 
-    //Find the lowest X and Z region for proper offset
+    //Find the lowest X and Z coordinates for proper offset
     MC_Point offset = topleftOffset(world);
 
     /* Then, create an image of the size of the world in blocks
@@ -80,8 +80,9 @@ SDL_Surface* Drawer::renderWorld(RegionFileWorld& world)
         //The rendered region
         SDL_Surface* region = renderRegion(pair.second);
 
-        //Put the region surface into the main surface, stitching the regions togeher
-        SDL_Rect blitdst = { (offset.x + pair.first.x)*size, (offset.z + pair.first.z)*size, size, size};
+        //Put the region surface into the main surface, stitching the regions together
+        SDL_Rect blitdst = { (offset.x + pair.first.x)*size,
+                             (offset.z + pair.first.z)*size, size, size };
         SDL_BlitSurface(region, nullptr, surface, &blitdst);
 
         //We're done with this
@@ -95,21 +96,24 @@ SDL_Surface* Drawer::renderWorld(RegionFileWorld& world)
 
 MC_Point Drawer::topleftOffset(RegionFileWorld& world)
 {
-    //All of the regions, mapped by coordinate
-    RegionFileWorld::RegionMap& regions = world.getAllRegions();
+    /* We need to find the regions with the lowest X, and Z.
+     * They may not nessecerily be the same region. These X and Z
+     * are combined to form the upper-left corner of the render */
+    int lowestX = 0, lowestZ = 0;
 
-    /* We need to find the upper-left most region to draw at 0,0.
-     * It's the one the with least X and Z coordinates */
-    auto it = std::min_element(regions.begin(), regions.end(),
-        [](auto& pair0, auto& pair1) { return pair0.first < pair1.first; });
+    for(auto& region : world.getAllRegions())
+    {
+        int x = region.first.x;
+        int z = region.first.z;
 
-    /* The coordinates of top region are used to offset all the others
-     * relative to the top-left corner of the image */
-    RegionFileWorld::RegionCoord lowestCoord = it->first;
-    int offsetX = abs(lowestCoord.x);
-    int offsetZ = abs(lowestCoord.z);
+        lowestX = std::min(lowestX, x);
+        lowestZ = std::min(lowestZ, z);
+    }
 
-    return { offsetX, offsetZ };
+    /* Absolute value is used to push other reigons down and to the right,
+     * because otherwise a negative value would push them up and to the left.
+     * Basically, draw.X = lowestX + region.X */
+    return { abs(lowestX), abs(lowestZ) };
 }
 
 void Drawer::drawGirdLines(SDL_Surface* s)
@@ -129,11 +133,11 @@ void Drawer::drawGirdLines(SDL_Surface* s)
 SDL_Surface* Drawer::createRGBASurface(int w, int h)
 {
     SDL_Surface* surface =  SDL_CreateRGBSurface(0, w, h, 32,
-    #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-        0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF
-    #else
-        0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000
-    #endif
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+    0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF
+#else
+    0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000
+#endif
     );
 
     if(!surface) {

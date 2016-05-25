@@ -1,7 +1,6 @@
 #ifndef DRAW_H
 #define DRAW_H
 
-#include <array>
 #include <vector>
 #include "types.h"
 #include "blocks.h"
@@ -37,13 +36,13 @@ private:
      * taking endianness into account */
     SDL_Surface* createRGBASurface(int w, int h);
 
-    //Put region-sized (32x32) gridlines on a surface
+    //Put region-sized (512x512) gridlines on a surface
     void drawGirdLines(SDL_Surface* s);
 
-    /* This gives us the coordinates of the upper-left region in the world.
-     * i.e, the one the least x and Z positions, such as r.-3.-4.mca
-     * This is used to properly size the final drawing, and draw all regions
-     * relative to the top-left of the image */
+    /* This gives us the magnitude of left-most (-X) and top-most (-Z) regions,
+     * e.g.: World has r.-3.-2.mca and r.0.-4.mca -> {3,4}
+     * This is used to properly place the final drawing, by "pushing" all regions
+     * by that offset, relative to the top-left of the image */
     MC_Point topleftOffset(RegionFileWorld& world);
 
     //Item to get colors based on block IDs
