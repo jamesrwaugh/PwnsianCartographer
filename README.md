@@ -1,4 +1,4 @@
-# PwnsianCartograph
+# Pwnsian Cartographer
 A simple top-down Minecraft world renderer (Anvil format)
 
 This is a work in progress.
