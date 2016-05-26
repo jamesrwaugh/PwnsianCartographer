@@ -26,27 +26,33 @@ bool findYSection(const nbt_node* node, void* aux)
  * Main ChunkInterface */
 
 ChunkInterface::ChunkInterface(nbt_node* chunk)
-    : heightMap(nullptr)
-    , haveHeightMap(false)
 {
     this->chunk = chunk;
+
+    //Attempt to load the heightmap of the chunk on construction
+    //This is important for finding the highest blocks
+    loadHeightMap();
 }
 
 unsigned ChunkInterface::getBlockID(int x, int y, int z)
 {
-    //Convert absolute Y to section, and load the secion if needed
+    /* Convert absolute Y to section, and load the section if needed
+     * if we don't have its section, return invalid block */
     int ySection = absoluteYToSection(y);
     loadYSection(ySection);
+    if(sections[ySection].state == Section::NOTFOUND) {
+        return blocks::invalidID;
+    }
 
     /* The actual Y coordinate is relative to the section, not the whole
      * chunk */
     int sectionY = y % 16;
 
-    /* Get the ID from the section above. If the "Add" array is there,
+    /* Get the ID from the section. If the "Add" array is there,
      * it represents an upper 8 bits of the block ID */
     int index = sectionY*16*16 + z*16 + x;
 
-    Section& section = ySectionMap[ySection];
+    Section& section = sections[ySection];
     unsigned id = section.Blocks[index];
     if(section.Add) {
         byte upperID = section.Add[index];
@@ -58,28 +64,21 @@ unsigned ChunkInterface::getBlockID(int x, int y, int z)
 
 unsigned ChunkInterface::getHighestSolidBlockID(int x, int z)
 {
-    //We need to get the height map first.
-    if(!haveHeightMap) {
-        nbt_node* heightNode = nbt_find_by_path(chunk, ".Level.HeightMap");
-        if(heightNode != NULL) {
-            heightMap = getIntArray(heightNode, "HeightMap");
-            haveHeightMap = true;
-        }
-    }
-
-    //Sanity
-    if(heightMap == nullptr) {
-        error("Failed to find heightmap in chunk");
-    }
-
-    /* Return the block at X Y Z, where the Y is the heightmap-1 of that
+    /* Return the block at X Y Z, where the Y is the heightmap of that
      * X and Z. heightMap at that X,Z location will be the lowest location
-     * where light is at full strength, which is air.
-     * So, subtracting 1 is the block directly under that. (highest solid) */
-    int y = heightMap[z*16 + x] - 1;
-    if(y < 0) y = 0;
+     * where light is at full strength, which may or may not be air. */
+    int y = heightMap[z*16 + x];
 
-    return getBlockID(x, y, z);
+    /* Try to get block at the heightmap. Often, this section is not loaded.
+     * If it's also not air, like redstone, return it */
+    unsigned id = getBlockID(x, y, z);
+    if( id != blocks::invalidID && id != 0 ) {
+        return id;
+    }
+
+    /* Otherwise the highest *solid* block is one-below the heightmap, because
+     * the section either isnt' loaded, it it's air */
+    return getBlockID(x, std::max(y-1,0), z);
 }
 
 void ChunkInterface::loadYSection(int y)
@@ -90,28 +89,46 @@ void ChunkInterface::loadYSection(int y)
     }
 
     //Check if we've already loaded this. If so, stop.
-    if(ySectionMap.find(y) != ySectionMap.end()) {
+    if(sections[y].state != Section::UNDISCOVERED) {
         return;
     }
 
     //A TAG_Compound of all sections in the chunk...
-    nbt_node* sections = nbt_find_by_path(chunk, ".Level.Sections");
+    nbt_node* nbtsections = nbt_find_by_path(chunk, ".Level.Sections");
 
     //...Find the section with the Y index we're looking for
-    nbt_node* neededSecion = nbt_find(sections, nbtPredicates::findYSection, &y);
+    nbt_node* neededSecion = nbt_find(nbtsections, nbtPredicates::findYSection, &y);
 
-    //Friendly check
-    if(!sections || !neededSecion) {
-        error("Failed to find Y section ", y, " in chunk");
+    //Friendly validity check
+    if(!nbtsections || !neededSecion) {
+        sections[y].state = Section::NOTFOUND;
+        return;
     }
 
     //We've found it now, so store in the section cache
-    if(neededSecion) {
-        Section& newSection = ySectionMap[y];
-        newSection.Y = y;
-        newSection.Blocks     = getByteArray(neededSecion, "Blocks");
-        newSection.Add        = getByteArray(neededSecion, "Add");
-        newSection.BlockLight = getByteArray(neededSecion, "BlockLight");
+    if(neededSecion)
+    {
+        Section& sect = sections[y];
+        sect.state = Section::FOUND;
+        sect.Y = y;
+        sect.Blocks     = getByteArray(neededSecion, "Blocks");
+        sect.Add        = getByteArray(neededSecion, "Add");
+        sect.BlockLight = getByteArray(neededSecion, "BlockLight");
+
+        if(!sect.Blocks || !sect.BlockLight) {
+            error("Failed to find Blocks array in chunk section ", y);
+        }
+    }
+}
+
+void ChunkInterface::loadHeightMap()
+{
+    //The height map is a int array at the following path in the chunk.
+    nbt_node* heightNode = nbt_find_by_path(chunk, ".Level.HeightMap");
+
+    heightMap = getIntArray(heightNode, "HeightMap");
+    if(heightMap == nullptr) {
+        error("Failed to find heightmap in chunk");
     }
 }
 
@@ -120,6 +137,11 @@ Uint8 ChunkInterface::getHighestLightLevel(int x, int z)
     (void)x;
     (void)z;
     return 0;
+}
+
+int ChunkInterface::absoluteYToSection(int y)
+{
+    return y / 16;
 }
 
 unsigned char* ChunkInterface::getByteArray(nbt_node* src, const char* name)
@@ -139,10 +161,3 @@ int* ChunkInterface::getIntArray(nbt_node* src, const char* name)
     }
     return nullptr;
 }
-
-
-int ChunkInterface::absoluteYToSection(int y)
-{
-    return y / 16;
-}
-

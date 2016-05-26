@@ -32,6 +32,7 @@ SDL_Surface* Drawer::renderChunk(nbt_node* chunk)
     {
         //The data from the blocks
         unsigned id = iface.getHighestSolidBlockID(x,z);
+        //std::cout << id << std::endl;
         SDL_Color color = colors.getBlockColor(id);
 
         //Draw above color on image

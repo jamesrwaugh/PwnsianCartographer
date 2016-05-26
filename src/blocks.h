@@ -13,6 +13,9 @@
 namespace blocks
 {
 
+//A
+static const unsigned invalidID = UINT_MAX;
+
 //How do we identify a block?
 //CAREFUL: If something like "404.png" is passed in, this breaks FIXME
 //=============================================================================
