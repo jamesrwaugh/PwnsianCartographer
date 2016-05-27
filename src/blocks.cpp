@@ -27,7 +27,7 @@ struct SimilarColorCompare
 namespace blocks
 {
 
-BlockID::BlockID(int id, int meta)
+BlockID::BlockID(unsigned id, unsigned meta)
     : id(id), meta(meta)
 {
 
@@ -57,6 +57,16 @@ bool BlockID::operator<(const BlockID& other) const
    else if(id == other.id)
        return (meta < other.meta);
    return false;
+}
+
+bool BlockID::operator==(const BlockID& other) const
+{
+    return id == other.id && meta == other.meta;
+}
+
+bool BlockID::operator!=(const BlockID& other) const
+{
+    return !(*this == other);
 }
 
 BlockID::operator std::string() const
@@ -244,11 +254,28 @@ void BlockColors::saveNewJsonCache() const
 
 SDL_Color BlockColors::getBlockColor(unsigned id, unsigned meta) const
 {
-    auto it = blockColors.find(BlockID(id,meta));
-    if(it != blockColors.end()) {
+    return getBlockColor(BlockID{id,meta});
+}
+
+SDL_Color BlockColors::getBlockColor(const BlockID& blockid) const
+{
+    auto it = blockColors.find(blockid);
+
+    if(it != blockColors.end())  {
         return it->second.first;
     }
-    return {255, 20, 147, 255}; //Block not known--return transparent color
+    else {
+        /* Base recursive case, if meta 0 isn't found, we safely
+         * say we don't know the block */
+        if(blockid.meta == 0) {
+            return {255, 20, 147, 255}; //Block not known--return pink color
+        }
+
+        /* If not found, check if we have the block with no metadata.
+         * This helps cases like crops and rotated stairs which metadata
+         * doesn't determine color, only break color*/
+        return getBlockColor(blockid.id, 0);
+    }
 }
 
 }

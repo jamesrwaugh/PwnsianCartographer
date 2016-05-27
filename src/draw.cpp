@@ -31,7 +31,7 @@ SDL_Surface* Drawer::renderChunk(nbt_node* chunk)
     for(int x = 0; x != 16; ++x)
     {
         //The data from the blocks
-        unsigned id = iface.getHighestSolidBlockID(x,z);
+        blocks::BlockID id = iface.getHighestSolidBlockID(x,z);
         //std::cout << id << std::endl;
         SDL_Color color = colors.getBlockColor(id);
 

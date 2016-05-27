@@ -34,7 +34,7 @@ ChunkInterface::ChunkInterface(nbt_node* chunk)
     loadHeightMap();
 }
 
-unsigned ChunkInterface::getBlockID(int x, int y, int z)
+blocks::BlockID ChunkInterface::getBlockID(int x, int y, int z)
 {
     /* Convert absolute Y to section, and load the section if needed
      * if we don't have its section, return invalid block */
@@ -55,14 +55,23 @@ unsigned ChunkInterface::getBlockID(int x, int y, int z)
     Section& section = sections[ySection];
     unsigned id = section.Blocks[index];
     if(section.Add) {
-        byte upperID = section.Add[index];
-        id |= (upperID << 8);
+        id |= (section.Add[index] << 8);
     }
 
-    return id;
+    /* Metadata is actaully 2048 bytes, 4 bits block.
+     * One byte has a block in each nibble */
+    unsigned halfindex = index / 2;
+    unsigned meta = 0;
+    if(index % 2 == 0) {
+        meta = section.Data[halfindex] & 0x0F;
+    } else {
+        meta = (section.Data[halfindex] & 0xF0) >> 4;
+    }
+
+    return {id, meta};
 }
 
-unsigned ChunkInterface::getHighestSolidBlockID(int x, int z)
+blocks::BlockID ChunkInterface::getHighestSolidBlockID(int x, int z)
 {
     /* Return the block at X Y Z, where the Y is the heightmap of that
      * X and Z. heightMap at that X,Z location will be the lowest location
@@ -71,13 +80,13 @@ unsigned ChunkInterface::getHighestSolidBlockID(int x, int z)
 
     /* Try to get block at the heightmap. Often, this section is not loaded.
      * If it's also not air, like redstone, return it */
-    unsigned id = getBlockID(x, y, z);
-    if( id != blocks::invalidID && id != 0 ) {
+    blocks::BlockID id = getBlockID(x, y, z);
+    if( id != blocks::invalidID && id.id != 0 ) {
         return id;
     }
 
     /* Otherwise the highest *solid* block is one-below the heightmap, because
-     * the section either isnt' loaded, it it's air */
+     * the section either isn't loaded, it it's air */
     return getBlockID(x, std::max(y-1,0), z);
 }
 
@@ -114,9 +123,10 @@ void ChunkInterface::loadYSection(int y)
         sect.Blocks     = getByteArray(neededSecion, "Blocks");
         sect.Add        = getByteArray(neededSecion, "Add");
         sect.BlockLight = getByteArray(neededSecion, "BlockLight");
+        sect.Data       = getByteArray(neededSecion, "Data");
 
-        if(!sect.Blocks || !sect.BlockLight) {
-            error("Failed to find Blocks array in chunk section ", y);
+        if(!sect.Blocks || !sect.Data || !sect.BlockLight) {
+            error("Failed to find data arrays in chunk section ", y);
         }
     }
 }

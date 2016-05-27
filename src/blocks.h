@@ -13,9 +13,6 @@
 namespace blocks
 {
 
-//A
-static const unsigned invalidID = UINT_MAX;
-
 //How do we identify a block?
 //CAREFUL: If something like "404.png" is passed in, this breaks FIXME
 //=============================================================================
@@ -26,7 +23,7 @@ public:
     unsigned meta = 0;  // metadata, aka damage
 
 public:
-    BlockID(int id, int meta);
+    BlockID(unsigned id, unsigned meta);
 
     /* Construct from string in the form of "301-4"
      * i.e, "id-meta". See .cpp */
@@ -35,10 +32,15 @@ public:
     /* For std::map. Compares on ID first, and if they're
      * equal, a tie is decided by the meta. */
     bool operator<(const BlockID& other) const;
+    bool operator==(const BlockID& other) const;
+    bool operator!=(const BlockID& other) const;
 
     //Conver to string, id-meta, same as parsed
     operator std::string() const;
 };
+
+//Represents a invalid block id
+static const BlockID invalidID = {UINT_MAX,UINT_MAX};
 
 /* Class to load and manage a .zip file of .pngs of block IDS, and extract
  * a color for each, for drawing. Caches colors in a .json file, specified by
@@ -63,6 +65,7 @@ public:
     /* Return a color for a block. This is based off of the
      * png for its ID */
     SDL_Color getBlockColor(unsigned id, unsigned meta = 0) const;
+    SDL_Color getBlockColor(const BlockID& blockid) const;
 
     /* Return the pixel format used in color operations.
      * Can be useful outside BlockColors */

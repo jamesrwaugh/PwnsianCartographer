@@ -14,11 +14,11 @@ public:
     ChunkInterface(nbt_node* chunk);
 
     /* Generic return a block ID at X,Y,Z */
-    unsigned getBlockID(int x, int y, int z);
+    blocks::BlockID getBlockID(int x, int y, int z);
 
     /* Important! Gives the ID of the highest block at X,Z.
      * For a top-down view, this is the block we render. */
-    unsigned getHighestSolidBlockID(int x, int z);
+    blocks::BlockID getHighestSolidBlockID(int x, int z);
 
     /* Important! Gives the light level (0-15) of the highest block at X,Z.
      * With above, this can be used to draw lights */
@@ -34,6 +34,9 @@ private:
     {
         //TAG_Byte_Array("Blocks") 16x16x16
         byte* Blocks = nullptr;
+
+        //TAG_Byte_Array("Data") 16x16x16
+        byte* Data = nullptr;
 
         //TAG_Byte_Array("Add") 16x16x16
         byte* Add = nullptr;
