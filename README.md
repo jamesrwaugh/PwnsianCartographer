@@ -3,7 +3,7 @@ A simple top-down Minecraft world renderer (Anvil format)
 
 This is a work in progress.
 
-![World Render](EarlyWorldRender.png)
+![World Render](NewerWorldRender.png)
 
 ##Building and Running
 Building requires GCC 4.9 or later or any compiler with C++14 support. A QtCreater project file is provided in /src.
