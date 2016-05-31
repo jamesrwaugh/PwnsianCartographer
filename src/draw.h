@@ -21,17 +21,20 @@ class Drawer
 public:
     Drawer();
 
-    //Render a single chunk to a surface
-    SDL_Surface* renderChunk(nbt_node* chunk);
-
-    //Render a single region to a surface
-    SDL_Surface* renderRegion(RegionFile& region);
-
     /* Renders a world, returns an RGBA SDL_Surface of the image.
      * Can be saved by lodepng::encode on (unsigned char*)surface->pixels */
-    SDL_Surface* renderWorld(RegionFileWorld &world);
+    SDL_Surface* renderWorld(RegionFileWorld& world);
 
 private:
+    //Width of a region in blocks
+    static const int regionsize = 32*16;
+
+    //Render a single chunk to an existing surface
+    void renderChunk(MC_Point location, SDL_Renderer *renderer, nbt_node* chunk);
+
+    //Render a single region to an existing surface at "location" XY
+    void renderRegion(MC_Point location, SDL_Surface* surface, RegionFile* region);
+
     /* Utility to create a 32-bit RGBA surface with w/h,
      * taking endianness into account */
     SDL_Surface* createRGBASurface(int w, int h);

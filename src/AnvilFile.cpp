@@ -127,7 +127,6 @@ RegionFile::RegionFile(const std::string& path)
 
 RegionFile::~RegionFile()
 {
-    file.close();
     for(auto& pair : knownChunkData) {
         nbt_free(pair.second);
     }
@@ -135,14 +134,14 @@ RegionFile::~RegionFile()
 
 void RegionFile::load(const std::string& path)
 {
-    file.open(path, std::fstream::in | std::fstream::binary);
-    if(!file.is_open()) {
-        error("Could not open region file ", path);
-    }
+    //Load entire file into string
+    fileContent = readFile(path);
+
+    //Create stream on file for easy seeking and reading
+    file.str(fileContent);
 
     int fileLength = getLength(file);
     offsets.resize(SECTOR_INTS, 0);
-    chunkTimestamps.resize(SECTOR_INTS, 0);
 
     /* set up the available sector map. Sectors 0 and 1 are
      * the regions's metadata, always taken */
@@ -151,7 +150,7 @@ void RegionFile::load(const std::string& path)
     sectorFree[0] = false; // chunk offset table
     sectorFree[1] = false; // for the last modified info
 
-    //Tell me the byte offset of the chunks
+    //Tell me the byte offset of the chunks (sector 1)
     file.seekg(0);
     for (int i = 0; i < SECTOR_INTS; ++i) {
         unsigned offset = readInt(file);
@@ -163,10 +162,8 @@ void RegionFile::load(const std::string& path)
         }
     }
 
-    //Tell me the timestamps (last saved time) of each chunk
-    for (int i = 0; i < SECTOR_INTS; ++i) {
-        chunkTimestamps[i] = readInt(file);
-    }
+    /* The next SECTOR_INTS ints (sector 2) would be the timestamps--the last saved time
+     * of the chunk. We don't care about them here, so they're not loaded */
 
     //Mark as being loaded correctly
     isLoaded = true;
@@ -243,7 +240,7 @@ nbt_node* RegionFile::getChunkNBT(int x, int z)
     //Next data: Compressed chunk NBT data. What we're after!
     std::vector<char> data(length);
     file.read(data.data(), length);
-    nbt_node* nbt = nbt_parse_compressed(data.data(), data.size());
+    nbt_node* nbt = nbt_parse_compressed(data.data(), length);
 
     //Record that we know chunk data at this coordinate before returning
     knownChunkData[ChunkCoord{x,z}] = nbt;

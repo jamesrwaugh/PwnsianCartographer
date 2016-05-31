@@ -1,4 +1,5 @@
 #include <SDL2/SDL.h>
+#include <future>
 #include "lodepng.h"
 #include "utility.h"
 #include "blocks.h"
@@ -14,60 +15,8 @@ Drawer::Drawer()
     colors.load("items.zip", "items_color_cache.json");
 }
 
-SDL_Surface* Drawer::renderChunk(nbt_node* chunk)
-{
-    //Wrapper to tell us info about the ID at a position
-    ChunkInterface iface(chunk);
-
-    //SDL components to draw with
-    SDL_Surface* surface = createRGBASurface(16, 16);
-    SDL_Renderer* renderer = SDL_CreateSoftwareRenderer(surface);
-    if(!surface || !renderer) {
-        error("Cannot create rendering surface: ", SDL_GetError());
-    }
-
-    //This is where it all comes together!
-    for(int z = 0; z != 16; ++z)
-    for(int x = 0; x != 16; ++x)
-    {
-        //The data from the blocks
-        blocks::BlockID id = iface.getHighestSolidBlockID(x,z);
-        //std::cout << id << std::endl;
-        SDL_Color color = colors.getBlockColor(id);
-
-        //Draw above color on image
-        SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-        SDL_RenderDrawPoint(renderer, x, z);
-    }
-
-    return surface;
-}
-
-SDL_Surface* Drawer::renderRegion(RegionFile& region)
-{
-    SDL_Surface* surface = createRGBASurface(16*32, 16*32);
-
-    for(const auto& pair : region.getAllChunks())
-    {
-        //Render the chunk
-        SDL_Surface* chunk = renderChunk(pair.second);
-
-        //Put the chunk surface into the main surface, stitching the chunks together
-        SDL_Rect blitdst = {pair.first.x*16, pair.first.z*16, 16, 16};
-        SDL_BlitSurface(chunk, nullptr, surface, &blitdst);
-
-        //We're done with this
-        SDL_FreeSurface(chunk);
-    }
-
-    return surface;
-}
-
 SDL_Surface* Drawer::renderWorld(RegionFileWorld& world)
 {
-    //Width of a region in blocks
-    const int size = 32*16;
-
     //Find the lowest X and Z coordinates for proper offset
     MC_Point offset = topleftOffset(world);
 
@@ -75,24 +24,88 @@ SDL_Surface* Drawer::renderWorld(RegionFileWorld& world)
      * to place all of the region renders on */
     MC_Point worldSize = world.getSize();
     SDL_Surface* surface = createRGBASurface(worldSize.x, worldSize.z);
+    if(!surface) {
+        error("Cannot create render surface: ", SDL_GetError());
+    }
+
+    //Keeping track of threads
+    std::vector<std::future<void>> threads;
 
     for(auto& pair : world.getAllRegions())
     {
-        //The rendered region
-        SDL_Surface* region = renderRegion(pair.second);
+        //Where to render the region
+        int x = (pair.first.x + offset.x) * regionsize;
+        int z = (pair.first.z + offset.z) * regionsize;
 
-        //Put the region surface into the main surface, stitching the regions together
-        SDL_Rect blitdst = { (offset.x + pair.first.x)*size,
-                             (offset.z + pair.first.z)*size, size, size };
-        SDL_BlitSurface(region, nullptr, surface, &blitdst);
+        /* Bind the "renderRegion" member function, to call in a thread.
+         * Somewhere deep inside std::bind/async, the copy ctor of RegionFile is called,
+         * so renderRegion needs to accept a RegionFile pointer instead */
+        auto function = std::bind(&Drawer::renderRegion, this,
+                                  MC_Point{x,z},
+                                  surface,
+                                  &pair.second);
 
-        //We're done with this
-        SDL_FreeSurface(region);
+        //Launch a new thread to render this region
+        threads.push_back(std::async(std::launch::async, function));
+
+        //If we've got a maximum number of threads, wait for them all
+        if(threads.size() >= 6) {
+            for(auto& thread : threads) {
+                thread.get();
+            }
+            threads.clear();
+        }
     }
 
+    //Catches the case in which the for-loop finishes with less than max threads
+    for(auto& thread : threads) {
+        thread.get();
+    }
+
+    //Add cool grid lines
     drawGirdLines(surface);
 
     return surface;
+}
+
+/* Render a single region to an existing surface.
+ * The renderer is created in this function to ensure one renderer per thread.
+ * They're all just spitting things out to the same surface */
+void Drawer::renderRegion(MC_Point location,  SDL_Surface* surface, RegionFile* region)
+{
+    SDL_Renderer* renderer = SDL_CreateSoftwareRenderer(surface);
+
+    for(const auto& pair : region->getAllChunks())
+    {
+        //The draw location is the passed in region location + chunk location
+        int x = location.x + pair.first.x*16;
+        int z = location.z + pair.first.z*16;
+
+        renderChunk({x,z}, renderer, pair.second);
+    }
+
+    SDL_DestroyRenderer(renderer);
+}
+
+void Drawer::renderChunk(MC_Point location,
+                         SDL_Renderer* renderer,
+                         nbt_node *chunk)
+{
+    //Wrapper to tell us info about the ID at a position
+    ChunkInterface iface(chunk);
+
+    //This is where it all comes together!
+    for(int z = 0; z != 16; ++z)
+    for(int x = 0; x != 16; ++x)
+    {
+        //The data from the blocks
+        blocks::BlockID id = iface.getHighestSolidBlockID(x,z);
+        SDL_Color color = colors.getBlockColor(id);
+
+        //Draw above color on image
+        SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+        SDL_RenderDrawPoint(renderer, location.x + x, location.z + z);
+    }
 }
 
 MC_Point Drawer::topleftOffset(RegionFileWorld& world)

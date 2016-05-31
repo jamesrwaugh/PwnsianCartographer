@@ -3,7 +3,7 @@ CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
 QMAKE_CXXFLAGS += -std=c++14
-unix|win32: LIBS += -lnbt -ljson11 -lz -lSDL2 -lzip
+unix|win32: LIBS += -lnbt -ljson11 -lz -lSDL2 -lzip -lpthread
 
 SOURCES += main.cpp \
     AnvilFile.cpp \

@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <sstream>
 #include <map>
 
 #include <nbt/nbt.h>
@@ -50,14 +51,18 @@ private:
     static const int SECTOR_INTS = SECTOR_BYTES / 4;
 
     //Variabes
-    std::string fileName;
-    std::fstream file;
+    //"offsets" Indicates the offset in bytes into the region file of each chunk
+    //"sectorFree" Indicates if a sector is free or not.
     std::vector<int> offsets;
-    std::vector<int> chunkTimestamps;
     std::vector<bool> sectorFree;
-    ChunkMap knownChunkData;
     bool isLoaded;
     bool knowAllChunks;
+
+    //The input steam to the file's content, and the file's content in full
+    //knownChunkData is the most important, all the stored chunks data.
+    std::stringstream file;
+    std::string fileContent;
+    ChunkMap knownChunkData;
 
     //is this an invalid chunk coordinate?
     bool outOfBounds(int x, int z);
