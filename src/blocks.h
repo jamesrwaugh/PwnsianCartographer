@@ -60,7 +60,7 @@ public:
      * "cacheFileName" is a json file that stores cached colors, is only
      * recomputed if an ID in the .zip changes */
     void load(const std::string& zipFileName,
-              const std::string& cacheFileName = "blockcolors.json");
+              const std::string& cacheFileName);
 
     /* Return a color for a block. This is based off of the
      * png for its ID */

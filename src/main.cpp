@@ -19,7 +19,7 @@ int main(int argc, char** argv)
 
     try
     {
-#if 0
+    #if 0
         RegionFile file(argv[1]);
         for(auto& chunk : file.getAllChunks())
         {
@@ -27,7 +27,7 @@ int main(int argc, char** argv)
             //std::cout << nbt_dump_ascii(chunk.second) << std::endl;
             //std::cout << "===============" << std::endl;
         }
-#else
+    #else
         //Load
         RegionFileWorld world(argv[1]);
         draw::Drawer drawer;
@@ -37,7 +37,7 @@ int main(int argc, char** argv)
 
         //Output
         draw::saveSurfacePNG(surface, std::string(argv[1])+"-output"+".png");
-#endif
+    #endif
     }
     catch(std::exception& ex) {
         log("Something Happened: ", ex.what());

@@ -12,7 +12,9 @@ SOURCES += main.cpp \
     AnvilFileWorld.cpp \
     blocks.cpp \
     lodepng.cpp \
-    ChunkInterface.cpp
+    ChunkInterface.cpp \
+    config.cpp \
+    keyvalues.cpp
 
 HEADERS += \
     AnvilFile.h \
@@ -22,5 +24,7 @@ HEADERS += \
     AnvilFileWorld.h \
     win32_dirent.h \
     blocks.h \
-    ChunkInterface.h
+    ChunkInterface.h \
+    config.h \
+    keyvalues.h
 

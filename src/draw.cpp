@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include <future>
+#include "config.h"
 #include "lodepng.h"
 #include "utility.h"
 #include "blocks.h"
@@ -11,8 +12,17 @@ namespace draw
 
 Drawer::Drawer()
 {
-    //TODO: Config file
-    colors.load("items.zip", "items_color_cache.json");
+    //Normal color wrapper loading
+    colors.load(config::get().GetString("items-zip-name"),
+                config::get().GetString("items-cache-name"));
+
+    //Max drawing threads; < 0 means use number of cores aviliable
+    int threads = config::get().GetInt("drawer-max-threads");
+    if(threads < 0) {
+        maxThreads = SDL_GetCPUCount();
+    } else {
+        maxThreads = threads;
+    }
 }
 
 SDL_Surface* Drawer::renderWorld(RegionFileWorld& world)
@@ -49,7 +59,7 @@ SDL_Surface* Drawer::renderWorld(RegionFileWorld& world)
         threads.push_back(std::async(std::launch::async, function));
 
         //If we've got a maximum number of threads, wait for them all
-        if(threads.size() >= 6) {
+        if(threads.size() >= maxThreads) {
             for(auto& thread : threads) {
                 thread.get();
             }
@@ -63,7 +73,9 @@ SDL_Surface* Drawer::renderWorld(RegionFileWorld& world)
     }
 
     //Add cool grid lines
-    drawGirdLines(surface);
+    if(config::get().GetInt("drawer-draw-gridlines")) {
+        drawGirdLines(surface);
+    }
 
     return surface;
 }

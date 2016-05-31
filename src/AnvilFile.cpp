@@ -136,6 +136,9 @@ void RegionFile::load(const std::string& path)
 {
     //Load entire file into string
     fileContent = readFile(path);
+    if(fileContent.empty()) {
+        error("Could not load region file \"", path, "\"");
+    }
 
     //Create stream on file for easy seeking and reading
     file.str(fileContent);

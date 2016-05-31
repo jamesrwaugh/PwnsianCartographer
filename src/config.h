@@ -1,0 +1,24 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+#include <string>
+#include "keyvalues.h"
+
+/* Singleton wrapper around a KeyValue object, used
+ * to load from the config file, config.ini */
+
+class config
+{
+public:
+    // Return the KeyValue instance
+    static KeyValue& get();
+
+    //Load from name instead of "config.ini"
+    static void setFilename(const std::string& name);
+
+private:
+    static bool isLoaded;
+    static std::string filename;
+    static KeyValue instance;
+};
+
+#endif // CONFIG_H

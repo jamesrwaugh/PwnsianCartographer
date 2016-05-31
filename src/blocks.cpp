@@ -110,7 +110,7 @@ void BlockColors::load(const std::string& zipFileName, const std::string& cacheF
     std::string parseErr;
     Json cacheJson = Json::parse(readFile(cacheFileName), parseErr);
     if(!parseErr.empty()) {
-        log("Could not read cache: ", parseErr);
+        log("Could not read cache \"", cacheFileName, "\": ", parseErr);
     }
 
     /* Will be true if computeColor is called, basically if cache is missing
@@ -131,12 +131,13 @@ void BlockColors::load(const std::string& zipFileName, const std::string& cacheF
          * "hadToRecompute" is set to true, and a new .json cache will be written out */
         SDL_Color color;
         Json key = cacheJson[name];
-        if(key.is_object() && key["crc"].number_value() == zipcrc)
-        {
-            Uint32 pixel = key["color"].number_value();
+        Json cachecolor = key["color"];
+        Json crc = key["crc"];
+
+        if(key.is_object() && crc.number_value() == zipcrc) {
+            Uint32 pixel = cachecolor.number_value();
             SDL_GetRGBA(pixel, rgba, &color.r, &color.g, &color.b, &color.a);
-        }
-        else {
+        } else {
             color = computeColor(entry);
             hadToRecompute = true;
         }
@@ -263,8 +264,7 @@ SDL_Color BlockColors::getBlockColor(const BlockID& blockid) const
 
     if(it != blockColors.end())  {
         return it->second.first;
-    }
-    else {
+    } else {
         /* Base recursive case, if meta 0 isn't found, we safely
          * say we don't know the block */
         if(blockid.meta == 0) {

@@ -85,8 +85,5 @@ std::string readStream(std::istream& is)
 std::string readFile(const std::string& filename)
 {
     std::ifstream is(filename, std::ios::binary);
-    if(!is.is_open()) {
-        error("Could not open file ", filename, " for reading");
-    }
     return readStream(is);
 }

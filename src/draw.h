@@ -29,6 +29,10 @@ private:
     //Width of a region in blocks
     static const int regionsize = 32*16;
 
+    //The maximum number of thread to use when rendering
+    //A value of 1 will spawn 1 thread, though
+    unsigned maxThreads = 1;
+
     //Render a single chunk to an existing surface
     void renderChunk(MC_Point location, SDL_Renderer *renderer, nbt_node* chunk);
 
