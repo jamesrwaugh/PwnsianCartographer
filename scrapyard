@@ -17,3 +17,75 @@ if ((file.length() & 0xfff) != 0) {
         file.write((byte) 0);
     }
 }
+
+SDL_Surface* Drawer::renderWorld(RegionFileWorld& world)
+{
+    //Find the lowest X and Z coordinates for proper offset
+    MC_Point offset = topleftOffset(world);
+
+    /* Then, create an image of the size of the world in blocks
+     * to place all of the region renders on */
+    MC_Point worldSize = world.getSize();
+
+    //The "Window" and the renderer
+    window = SDL_CreateWindow("", 0, 0, worldSize.x, worldSize.z, 0);
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    if(!window || !renderer) {
+        error("Could not create window or renderer: ", SDL_GetError());
+    }
+
+    SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888,
+                                SDL_TEXTUREACCESS_TARGET ,worldSize.x, worldSize.z);
+    if(!texture) {
+        std::cerr << SDL_GetError() << std::endl;
+        exit(1);
+    }
+
+    //Set a texture to render to
+    SDL_SetRenderTarget( renderer, texture );
+
+    //Blank out the image
+    SDL_SetRenderDrawColor( renderer, 0x00, 0x00, 0x00, 0x00 );
+    SDL_RenderClear(renderer);
+
+    for(auto& pair : world.getAllRegions())
+    {
+        /* Where to render the region. This is the region's position,
+         * plus the top-left offset */
+        int x = (pair.first.x + offset.x) * regionsize;
+        int z = (pair.first.z + offset.z) * regionsize;
+
+        renderRegion({x,z}, pair.second);
+    }
+
+    //Unlink render target
+    SDL_SetRenderTarget( renderer, nullptr );
+
+    //Copy texture (that we drew on) to the screen
+    SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+
+    //Show the drawing
+    SDL_RenderPresent( renderer );
+
+    //Get pixel data from texture to return
+    SDL_Surface* surface = createRGBASurface(worldSize.x, worldSize.z);
+    if(!surface) {
+        error("Cannot create render surface: ", SDL_GetError());
+    }
+
+    //Copy pixels from texture into surface
+    if( SDL_RenderReadPixels(renderer, nullptr,
+                             surface->format->format,
+                             surface->pixels,
+                             surface->pitch) != 0 )
+    {
+        std::cout << SDL_GetError() << std::endl;
+    }
+
+    //Add cool grid lines
+    if(config::get().GetInt("drawer-draw-gridlines")) {
+        drawGirdLines(surface);
+    }
+
+    return surface;
+}

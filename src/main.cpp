@@ -23,9 +23,9 @@ int main(int argc, char** argv)
         RegionFile file(argv[1]);
         for(auto& chunk : file.getAllChunks())
         {
-            //std::cout << "===============" << std::endl;
-            //std::cout << nbt_dump_ascii(chunk.second) << std::endl;
-            //std::cout << "===============" << std::endl;
+            std::cout << "===============" << std::endl;
+            std::cout << nbt_dump_ascii(chunk.second) << std::endl;
+            std::cout << "===============" << std::endl;
         }
     #else
         //Load

@@ -3,7 +3,7 @@ CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
 QMAKE_CXXFLAGS += -std=c++14
-unix|win32: LIBS += -lnbt -ljson11 -lz -lSDL2 -lzip -lpthread
+unix|win32: LIBS += -lnbt -ljson11 -lz -lSDL2 -lzip -lpthread -lpng
 
 SOURCES += main.cpp \
     AnvilFile.cpp \
@@ -14,7 +14,8 @@ SOURCES += main.cpp \
     lodepng.cpp \
     ChunkInterface.cpp \
     config.cpp \
-    keyvalues.cpp
+    keyvalues.cpp \
+    savepng.c
 
 HEADERS += \
     AnvilFile.h \
@@ -26,5 +27,6 @@ HEADERS += \
     blocks.h \
     ChunkInterface.h \
     config.h \
-    keyvalues.h
+    keyvalues.h \
+    savepng.h
 

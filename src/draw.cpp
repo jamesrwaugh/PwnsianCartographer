@@ -1,10 +1,11 @@
 #include <SDL2/SDL.h>
 #include <future>
 #include "config.h"
-#include "lodepng.h"
 #include "utility.h"
 #include "blocks.h"
 #include "ChunkInterface.h"
+#include "savepng.h"
+#include "lodepng.h"
 #include "draw.h"
 
 namespace draw
@@ -180,9 +181,13 @@ namespace draw
 
 bool saveSurfacePNG(SDL_Surface* surface, const std::string& filename)
 {
+#ifdef __WINDOWS__
     int w = surface->w;
     int h = surface->h;
     return lodepng::encode(filename, (unsigned char*)surface->pixels, w, h) == 0;
+#else
+    return SDL_SavePNG(surface, filename.c_str());
+#endif
 }
 
 }
