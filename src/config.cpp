@@ -9,8 +9,8 @@ std::string config::filename = "config.ini";
 KeyValue& config::get()
 {
     if(!isLoaded) {
-        std::ifstream s(filename);
-        if(s.is_open()) {
+        std::ifstream file(filename);
+        if(file.is_open()) {
             instance.LoadFromFile(filename);
             isLoaded = true;
         } else {

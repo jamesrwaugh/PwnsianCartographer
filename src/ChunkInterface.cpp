@@ -29,15 +29,15 @@ ChunkInterface::ChunkInterface(nbt_node* chunk)
 {
     this->chunk = chunk;
 
-    //Attempt to load the heightmap of the chunk on construction
+    //Attempt to load the heightmap of the chunk on construction.
     //This is important for finding the highest blocks
     loadHeightMap();
 }
 
 blocks::BlockID ChunkInterface::getBlockID(int x, int y, int z)
 {
-    /* Convert absolute Y to section, and load the section if needed
-     * if we don't have its section, return invalid block */
+    /* Convert absolute Y to section, and load the section if needed.
+     * If we don't have its section, return invalid block */
     int ySection = absoluteYToSection(y);
     loadYSection(ySection);
     if(sections[ySection].state == Section::NOTFOUND) {
@@ -48,7 +48,7 @@ blocks::BlockID ChunkInterface::getBlockID(int x, int y, int z)
      * chunk */
     int sectionY = y % 16;
 
-    /* Get the ID from the section. If the "Add" array is there,
+    /* Get the block ID from the section! If the "Add" array is there,
      * it represents an upper 8 bits of the block ID */
     int index = sectionY*16*16 + z*16 + x;
 
@@ -73,9 +73,10 @@ blocks::BlockID ChunkInterface::getBlockID(int x, int y, int z)
 
 blocks::BlockID ChunkInterface::getHighestSolidBlockID(int x, int z)
 {
-    /* Return the block at X Y Z, where the Y is the heightmap of that
-     * X and Z. heightMap at that X,Z location will be the lowest location
-     * where light is at full strength, which may or may not be air. */
+    /* To get the highest block, return the block at X Y Z, where the Y
+     * is the heightmap of that X and Z. heightMap at that X,Z location
+     * will be the lowest location where light is at full strength,
+     * which may or may not be air. */
     int y = heightMap[z*16 + x];
 
     /* Try to get block at the heightmap. Often, this section is not loaded.
@@ -86,7 +87,7 @@ blocks::BlockID ChunkInterface::getHighestSolidBlockID(int x, int z)
     }
 
     /* Otherwise the highest *solid* block is one-below the heightmap, because
-     * the section either isn't loaded, it it's air */
+     * the section either isn't loaded, or it's air */
     return getBlockID(x, std::max(y-1,0), z);
 }
 
@@ -133,7 +134,7 @@ void ChunkInterface::loadYSection(int y)
 
 void ChunkInterface::loadHeightMap()
 {
-    //The height map is a int array at the following path in the chunk.
+    //The height map is an int array at the following path in the chunk root
     nbt_node* heightNode = nbt_find_by_path(chunk, ".Level.HeightMap");
 
     heightMap = getIntArray(heightNode, "HeightMap");

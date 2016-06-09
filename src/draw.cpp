@@ -13,7 +13,7 @@ namespace draw
 
 Drawer::Drawer()
 {
-    //Normal color wrapper loading
+    //Load the BlockColors to retrive color info from
     colors.load(config::get().GetString("items-zip-name"),
                 config::get().GetString("items-cache-name"));
 
@@ -35,22 +35,19 @@ SDL_Surface* Drawer::renderWorld(RegionFileWorld& world)
      * to place all of the region renders on */
     MC_Point worldSize = world.getSize();
     SDL_Surface* surface = createRGBASurface(worldSize.x, worldSize.z);
-    if(!surface) {
-        error("Cannot create render surface: ", SDL_GetError());
-    }
 
     //Keeping track of threads
     std::vector<std::future<void>> threads;
 
     for(auto& pair : world.getAllRegions())
     {
-        //Where to render the region
+        //Location to render the region
         int x = (pair.first.x + offset.x) * regionsize;
         int z = (pair.first.z + offset.z) * regionsize;
 
         /* Bind the "renderRegion" member function, to call in a thread.
          * Somewhere deep inside std::bind/async, the copy ctor of RegionFile is called,
-         * so renderRegion needs to accept a RegionFile pointer instead */
+         * so renderRegion needs to accept a RegionFile pointer instead. (&pair.second) */
         auto function = std::bind(&Drawer::renderRegion, this,
                                   MC_Point{x,z},
                                   surface,
@@ -94,7 +91,7 @@ void Drawer::renderRegion(MC_Point location,  SDL_Surface* surface, RegionFile* 
         int x = location.x + pair.first.x*16;
         int z = location.z + pair.first.z*16;
 
-        renderChunk({x,z}, renderer, pair.second);
+        renderChunk(MC_Point{x,z}, renderer, pair.second);
     }
 
     SDL_DestroyRenderer(renderer);
@@ -178,6 +175,8 @@ SDL_Surface* Drawer::createRGBASurface(int w, int h)
 
 namespace draw
 {
+
+/* On Windows, use a lodepng (no extra dependencies). *nix, use libpng */
 
 bool saveSurfacePNG(SDL_Surface* surface, const std::string& filename)
 {

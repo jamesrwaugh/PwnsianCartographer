@@ -35,7 +35,7 @@ public:
     bool operator==(const BlockID& other) const;
     bool operator!=(const BlockID& other) const;
 
-    //Conver to string, id-meta, same as parsed
+    //Convert to string: "id-meta". same as parsed
     operator std::string() const;
 };
 

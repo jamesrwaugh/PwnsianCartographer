@@ -11,16 +11,14 @@
 #include "types.h"
 
 /* Interface to a .mca Region file.
+ * Stripped + optimized to only include reading
  * Converted from Java from http://pastebin.com/niWTqLvk */
 
 class RegionFile
 {
 public:
-    //X/Z pairs representing a chunk position
-    typedef MC_Point ChunkCoord;
-
     //Map of chunk coordinates to their cached NBT data
-    typedef std::map<ChunkCoord, nbt_node*> ChunkMap;
+    typedef std::map<MC_Point, nbt_node*> ChunkMap;
 
 public:
     //Default constuctor to do nothing, or load on construction.

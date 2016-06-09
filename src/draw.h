@@ -22,7 +22,7 @@ public:
     Drawer();
 
     /* Renders a world, returns an RGBA SDL_Surface of the image.
-     * Can be saved by lodepng::encode on (unsigned char*)surface->pixels */
+     * Can be saved by draw::saveSurfacePNG (or your method) */
     SDL_Surface* renderWorld(RegionFileWorld& world);
 
 private:
@@ -30,7 +30,7 @@ private:
     static const int regionsize = 32*16;
 
     //The maximum number of thread to use when rendering
-    //A value of 1 will spawn 1 thread, though
+    //A value of 0 will spawn 1 thread, though
     unsigned maxThreads = 1;
 
     //Render a single chunk to an existing surface
@@ -61,7 +61,8 @@ private:
 namespace draw
 {
 
-/* Generic helper function to save a surface to a PNG at "filename" */
+/* Generic helper function to save a surface to a PNG at "filename"
+ * return true on success */
 bool saveSurfacePNG(SDL_Surface* surface, const std::string& filename);
 
 }

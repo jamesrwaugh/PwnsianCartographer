@@ -13,25 +13,11 @@ std::vector<std::string> Split(const std::string& target, const std::string& del
 //Remove whitespace before and after a string
 void trim(std::string& s);
 
-//Remove a # comment from the end of a string
-void removeComments(std::string& s);
-
-/* A drop-in replacement for std::getline that combines multiple lines ending in "\"
- * together into a single line, removes comments, and removes whitespace. Returns number
- * of lines read into `lineCount` */
-std::istream& getline_fixed(std::istream& is, std::string& line, int& lineCount);
-
 //roger - use this for printing a string on a single line
 template <typename printType>
 void println(printType const &str)
 { 
     std::cout<<str<<std::endl; 
-}
-
-template <typename printType>
-void print(printType const &str) 
-{ 
-    std::cout<<str; 
 }
 
 template <typename printType>

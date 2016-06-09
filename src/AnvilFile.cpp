@@ -8,7 +8,6 @@
  **    May you find forgiveness for yourself and forgive others.
  **    May you share freely, never taking more than you give.
  **/
-
 /*
  * 2011 February 16
  *
@@ -72,6 +71,7 @@ static int little_endian()
     return c[0];
 }
 
+//Swap bytes from BE <-> LE
 static void* swap_bytes(void* s, size_t len)
 {
     for(char* b = (char*)s,
@@ -168,7 +168,7 @@ void RegionFile::load(const std::string& path)
     /* The next SECTOR_INTS ints (sector 2) would be the timestamps--the last saved time
      * of the chunk. We don't care about them here, so they're not loaded */
 
-    //Mark as being loaded correctly
+    //Mark this as being loaded correctly
     isLoaded = true;
 }
 
@@ -185,7 +185,7 @@ const RegionFile::ChunkMap& RegionFile::getAllChunks()
         for(int z = 0; z != 32; ++z) {
             nbt_node* nbt = getChunkNBT(x,z);
             if(nbt) {
-                knownChunkData[ChunkCoord{x,z}] = nbt;
+                knownChunkData[MC_Point{x,z}] = nbt;
             }
         }
         }
@@ -198,7 +198,7 @@ const RegionFile::ChunkMap& RegionFile::getAllChunks()
 nbt_node* RegionFile::getChunkNBT(int x, int z)
 {
     if (outOfBounds(x, z)) {
-        error("READ ", x, z, " out of bounds");
+        error("Chunk: ", x, z, " out of bounds");
         return nullptr;
     }
     if(!isLoaded) {
@@ -209,7 +209,7 @@ nbt_node* RegionFile::getChunkNBT(int x, int z)
         return nullptr;
     }
     //Check to see if we've cached it before
-    auto it = knownChunkData.find(ChunkCoord{x,z});
+    auto it = knownChunkData.find(MC_Point{x,z});
     if(it != knownChunkData.end()) {
         return it->second;
     }
@@ -246,7 +246,7 @@ nbt_node* RegionFile::getChunkNBT(int x, int z)
     nbt_node* nbt = nbt_parse_compressed(data.data(), length);
 
     //Record that we know chunk data at this coordinate before returning
-    knownChunkData[ChunkCoord{x,z}] = nbt;
+    knownChunkData[MC_Point{x,z}] = nbt;
 
     //Return NBT data
     return nbt;
