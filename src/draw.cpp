@@ -148,6 +148,7 @@ MC_Point Drawer::topleftOffset(RegionFileWorld& world)
 void Drawer::drawGirdLines(SDL_Surface* s)
 {
     SDL_Renderer* renderer = SDL_CreateSoftwareRenderer(s);
+    SDL_RenderSetScale(renderer, scale, scale);
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 
     //Vertical lines
