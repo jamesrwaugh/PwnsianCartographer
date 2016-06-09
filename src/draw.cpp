@@ -24,6 +24,10 @@ Drawer::Drawer()
     } else {
         maxThreads = threads;
     }
+
+    //The scale of the image. Minimum is 1
+    scale = config::get().GetInt("drawer-scale");
+    scale = std::max(1u, scale);
 }
 
 SDL_Surface* Drawer::renderWorld(RegionFileWorld& world)
@@ -34,7 +38,7 @@ SDL_Surface* Drawer::renderWorld(RegionFileWorld& world)
     /* Then, create an image of the size of the world in blocks
      * to place all of the region renders on */
     MC_Point worldSize = world.getSize();
-    SDL_Surface* surface = createRGBASurface(worldSize.x, worldSize.z);
+    SDL_Surface* surface = createRGBASurface(worldSize.x * scale, worldSize.z * scale);
 
     //Keeping track of threads
     std::vector<std::future<void>> threads;
@@ -84,6 +88,7 @@ SDL_Surface* Drawer::renderWorld(RegionFileWorld& world)
 void Drawer::renderRegion(MC_Point location,  SDL_Surface* surface, RegionFile* region)
 {
     SDL_Renderer* renderer = SDL_CreateSoftwareRenderer(surface);
+    SDL_RenderSetScale(renderer, scale, scale);
 
     for(const auto& pair : region->getAllChunks())
     {

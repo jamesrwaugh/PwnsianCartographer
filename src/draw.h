@@ -33,6 +33,9 @@ private:
     //A value of 0 will spawn 1 thread, though
     unsigned maxThreads = 1;
 
+    //The scale of the image. 1x is 1-pixel-per-block, 2x is a 2x2 square per block...
+    unsigned scale = 1;
+
     //Render a single chunk to an existing surface
     void renderChunk(MC_Point location, SDL_Renderer *renderer, nbt_node* chunk);
 
