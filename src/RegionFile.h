@@ -1,5 +1,5 @@
-#ifndef ANVILFILE_H
-#define ANVILFILE_H
+#ifndef REGIONFILE_H
+#define REGIONFILE_H
 
 #include <string>
 #include <vector>
@@ -10,9 +10,9 @@
 #include <nbt/nbt.h>
 #include "types.h"
 
-/* Interface to a .mca Region file.
- * Stripped + optimized to only include reading
- * Converted from Java from http://pastebin.com/niWTqLvk */
+/* Interface to a Anvil .mca Region file.
+ * Converted from Java from http://pastebin.com/niWTqLvk
+ * Stripped + optimized to only include reading */
 
 class RegionFile
 {

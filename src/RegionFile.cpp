@@ -57,7 +57,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "utility.h"
-#include "AnvilFile.h"
+#include "RegionFile.h"
 
 /* I/O Helpers, mostly from cNBT
  * ========================================================================= */
@@ -214,7 +214,7 @@ nbt_node* RegionFile::getChunkNBT(int x, int z)
         return it->second;
     }
 
-    //Requires actual file seeks to look it up, now
+    //Now to actually load the chunk
 
     //Offset of chunk at x,z in bytes
     int offset = getOffset(x, z);
@@ -228,7 +228,7 @@ nbt_node* RegionFile::getChunkNBT(int x, int z)
         return nullptr;
     }
 
-    //Seek to the chunk. Length of chunk is the first int at sector
+    //Seek to the chunk sector. Length of chunk is the first int at sector
     file.seekg(sectorNumber * SECTOR_BYTES);
     unsigned length = readInt(file);
     if (length > SECTOR_BYTES * numSectors) {

@@ -1,14 +1,12 @@
 #include <iostream>
-#include <nbt/nbt.h>
-#include <lodepng.h>
-#include <json11.hpp>
 
+#include <nbt/nbt.h>
 #include "blocks.h"
-#include "AnvilFile.h"
-#include "AnvilFileWorld.h"
+#include "RegionFile.h"
+#include "RegionFileWorld.h"
 #include "ChunkInterface.h"
-#include "draw.h"
 #include "utility.h"
+#include "draw.h"
 
 int main(int argc, char** argv)
 {

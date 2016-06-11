@@ -6,7 +6,7 @@
 #include <algorithm>
 
 #include "utility.h"
-#include "AnvilFileWorld.h"
+#include "RegionFileWorld.h"
 
 RegionFileWorld::RegionFileWorld(std::string rootpath)
 {
@@ -43,7 +43,8 @@ RegionFileWorld::RegionMap& RegionFileWorld::getAllRegions()
 
 MC_Point RegionFileWorld::getSize()
 {
-    //Given the region coordinates, find out min and max
+    /* Given the region coordinates, find out min and max
+     * X and Z coordinates of each region */
     int minx = 0, minz = 0, maxx = 0, maxz = 0;
     for(auto& pair : getAllRegions())
     {

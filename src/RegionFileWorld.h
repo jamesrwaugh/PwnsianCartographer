@@ -3,11 +3,11 @@
 
 #include <map>
 #include <SDL2/SDL.h>
-#include "AnvilFile.h"
+#include "RegionFile.h"
 
-/* RegionFileWorld is a world of regions. it traverses
+/* RegionFileWorld is a world of Anvil regions (RegionFiles). It traverses
  * the region/ directory and loads each region, and provides
- * a cool interface, of course */
+ * a cool interface, of course, namely getAllRegions() and getSize() */
 
 class RegionFileWorld
 {
@@ -15,7 +15,7 @@ public:
     //- A region coordinate such as -1,2 -- from the .mca filenames
     typedef MC_Point RegionCoord;
 
-    //- Map type for {-1,2} -> RegionData
+    //- Map type for {-1,2} -> region data
     typedef std::map<RegionCoord, RegionFile> RegionMap;
 
 public:
@@ -30,12 +30,9 @@ public:
     MC_Point getSize();
 
 private:
-    //From a r.1.-1.mca, get the 1 and -1. Also validates the name.
+    //From a "r.1.-1.mca", get the 1 and -1. Also validates the name.
     // return.first == true if valid, return.second is the value if value
     std::pair<bool,RegionCoord> parseFilename(const std::string& filename);
-
-    //Has getSize() been calculated before?
-    bool knowSize = false;
 
     /* Stored regions. Maps a pair of integers, such as
      * -1,0 to the .mca region. */

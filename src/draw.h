@@ -4,11 +4,11 @@
 #include <vector>
 #include "types.h"
 #include "blocks.h"
-#include "AnvilFile.h"
-#include "AnvilFileWorld.h"
+#include "RegionFile.h"
+#include "RegionFileWorld.h"
 #include "nbt/nbt.h"
 
-/* Rendering section of code. Contains Drawer, which is a classed used
+/* Rendering section of code. Contains Drawer, which is a class used
  * to render chunks, regons, and entire worlds to SDL_Surfaces. */
 
 namespace draw

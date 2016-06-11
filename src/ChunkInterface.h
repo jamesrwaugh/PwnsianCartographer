@@ -2,11 +2,15 @@
 #define CHUNKINTERFACE_H
 
 #include <array>
-#include <map>
 
 #include <nbt/nbt.h>
 #include "types.h"
 #include "blocks.h"
+
+/* ChunkInterface
+ * ChunkInterface is a wrappper around a raw nbt_node* pointing to
+ * a chunk within a region. It provides usable functions to easily
+ * get block data */
 
 class ChunkInterface
 {
