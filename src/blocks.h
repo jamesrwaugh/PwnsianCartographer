@@ -1,9 +1,9 @@
 #ifndef BLOCKS_H
 #define BLOCKS_H
-
 #include <SDL2/SDL.h>
 #include <string>
 #include <map>
+
 #include "ZipLib/ZipArchiveEntry.h"
 
 /* Routines to handle returning RGB values for
@@ -14,7 +14,6 @@ namespace blocks
 {
 
 //How do we identify a block?
-//CAREFUL: If something like "404.png" is passed in, this breaks FIXME
 //=============================================================================
 struct BlockID
 {

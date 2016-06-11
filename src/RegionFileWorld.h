@@ -1,8 +1,8 @@
 #ifndef ANVILFILEWORLD_H
 #define ANVILFILEWORLD_H
-
 #include <map>
 #include <SDL2/SDL.h>
+
 #include "RegionFile.h"
 
 /* RegionFileWorld is a world of Anvil regions (RegionFiles). It traverses

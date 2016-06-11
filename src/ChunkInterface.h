@@ -1,9 +1,8 @@
 #ifndef CHUNKINTERFACE_H
 #define CHUNKINTERFACE_H
-
 #include <array>
-
 #include <nbt/nbt.h>
+
 #include "types.h"
 #include "blocks.h"
 

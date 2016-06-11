@@ -1,12 +1,23 @@
 #include <iostream>
-
 #include <nbt/nbt.h>
+
 #include "blocks.h"
 #include "RegionFile.h"
 #include "RegionFileWorld.h"
 #include "ChunkInterface.h"
 #include "utility.h"
 #include "draw.h"
+
+//Return part of a path after the last slash, but before any trailing slashes
+std::string removePath(const std::string& path)
+{
+    //Absolute last alnum character in string,
+    //and last slash in string, before last alnum chracter
+    size_t lastAlphaPos = path.find_last_not_of("\\/");
+    size_t firstAlphaPos = path.find_last_of("\\/", lastAlphaPos);
+
+    return path.substr(firstAlphaPos + 1, lastAlphaPos - firstAlphaPos);
+}
 
 int main(int argc, char** argv)
 {
@@ -17,25 +28,16 @@ int main(int argc, char** argv)
 
     try
     {
-    #if 0
-        RegionFile file(argv[1]);
-        for(auto& chunk : file.getAllChunks())
-        {
-            std::cout << "===============" << std::endl;
-            std::cout << nbt_dump_ascii(chunk.second) << std::endl;
-            std::cout << "===============" << std::endl;
-        }
-    #else
         //Load
-        RegionFileWorld world(argv[1]);
+        std::string worldName(argv[1]);
+        RegionFileWorld world(worldName);
         draw::Drawer drawer;
 
         //Draw
         SDL_Surface* surface = drawer.renderWorld(world);
 
         //Output
-        draw::saveSurfacePNG(surface, std::string(argv[1])+"-output"+".png");
-    #endif
+        draw::saveSurfacePNG(surface, removePath(worldName)+"-output"+".png");
     }
     catch(std::exception& ex) {
         log("Something Happened: ", ex.what());
