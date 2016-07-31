@@ -2,8 +2,17 @@ TEMPLATE = app
 CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
-QMAKE_CXXFLAGS += -std=c++14
-unix|win32: LIBS += -lnbt -ljson11 -lz -lSDL2 -lzip -lpthread -lpng
+unix|win32: LIBS += -lnbt -ljson11 -lSDL2 -lzip
+
+CONFIG(release, debug|release) {
+    QMAKE_CXXFLAGS += -std=c++14 -O4
+} else {
+    QMAKE_CXXFLAGS += -std=c++14
+}
+
+unix {
+    LIBS += -lpng -lpthread
+}
 
 SOURCES += main.cpp \
     utility.cpp \

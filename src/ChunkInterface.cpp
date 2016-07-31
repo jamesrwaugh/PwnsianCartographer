@@ -38,9 +38,14 @@ blocks::BlockID ChunkInterface::getBlockID(int x, int y, int z)
 {
     /* Convert absolute Y to section, and load the section if needed.
      * If we don't have its section, return invalid block */
-    int ySection = absoluteYToSection(y);
-    loadYSection(ySection);
-    if(sections[ySection].state == Section::NOTFOUND) {
+    int ySection = -1;
+    try {
+        ySection = absoluteYToSection(y);
+        loadYSection(ySection);
+        if(sections[ySection].state == Section::NOTFOUND) {
+            return blocks::invalidID;
+        }
+    } catch(...) {
         return blocks::invalidID;
     }
 
