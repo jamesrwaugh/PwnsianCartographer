@@ -1,8 +1,9 @@
 #ifndef DRAW_H
 #define DRAW_H
 #include <vector>
-
+#include <SDL2/SDL.h>
 #include "types.h"
+#include "anvil/ChunkInterface.h"
 #include "blocks/blocks.h"
 #include "anvil/RegionFile.h"
 #include "anvil/RegionFileWorld.h"
@@ -16,14 +17,17 @@ namespace draw
 
 /* Main world rendering class */
 
-class Drawer
+class BaseDrawer
 {
 public:
-    Drawer();
+    BaseDrawer();
 
     /* Renders a world, returns an RGBA SDL_Surface of the image.
      * Can be saved by draw::saveSurfacePNG (or your method) */
     SDL_Surface* renderWorld(RegionFileWorld& world);
+
+protected:
+    virtual SDL_Color renderBlock(ChunkInterface iface, int x, int z) = 0;
 
 private:
     //Width of a region in blocks
@@ -54,9 +58,6 @@ private:
      * This is used to properly place the final drawing, by "pushing" all regions
      * by that offset, relative to the top-left of the image */
     MC_Point topleftOffset(RegionFileWorld& world);
-
-    //Item to get colors based on block IDs
-    blocks::BlockColors colors;
 };
 
 }

@@ -1,12 +1,12 @@
 #include <iostream>
 #include <nbt/nbt.h>
 
+#include "utility.h"
 #include "blocks/blocks.h"
 #include "anvil/RegionFile.h"
 #include "anvil/RegionFileWorld.h"
 #include "anvil/ChunkInterface.h"
-#include "utility.h"
-#include "draw/draw.h"
+#include "draw/NormalDrawer.h"
 
 //Return part of a path after the last slash, but before any trailing slashes
 std::string removePath(const std::string& path)
@@ -31,7 +31,7 @@ int main(int argc, char** argv)
         //Load
         std::string worldName(argv[1]);
         RegionFileWorld world(worldName);
-        draw::Drawer drawer;
+        draw::NormalDrawer drawer;
 
         //Draw
         SDL_Surface* surface = drawer.renderWorld(world);

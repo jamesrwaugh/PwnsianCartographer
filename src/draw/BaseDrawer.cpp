@@ -6,17 +6,13 @@
 #include "anvil/ChunkInterface.h"
 #include "extlibs/savepng.h"
 #include "extlibs/lodepng.h"
-#include "draw/draw.h"
+#include "draw/BaseDrawer.h"
 
 namespace draw
 {
 
-Drawer::Drawer()
+BaseDrawer::BaseDrawer()
 {
-    //Load the BlockColors to retrive color info from
-    colors.load(config::get().GetString("items-zip-name"),
-                config::get().GetString("items-cache-name"));
-
     //Max drawing threads; < 0 means use number of cores aviliable
     int threads = config::get().GetInt("drawer-max-threads");
     if(threads < 0) {
@@ -30,7 +26,7 @@ Drawer::Drawer()
     scale = std::max(1u, scale);
 }
 
-SDL_Surface* Drawer::renderWorld(RegionFileWorld& world)
+SDL_Surface* BaseDrawer::renderWorld(RegionFileWorld& world)
 {
     //Find the lowest X and Z coordinates for proper offset
     MC_Point offset = topleftOffset(world);
@@ -52,7 +48,7 @@ SDL_Surface* Drawer::renderWorld(RegionFileWorld& world)
         /* Bind the "renderRegion" member function, to call in a thread.
          * Somewhere deep inside std::bind/async, the copy ctor of RegionFile is called,
          * so renderRegion needs to accept a RegionFile pointer instead. (&pair.second) */
-        auto function = std::bind(&Drawer::renderRegion, this,
+        auto function = std::bind(&BaseDrawer::renderRegion, this,
                                   MC_Point{x,z},
                                   surface,
                                   &pair.second);
@@ -85,7 +81,7 @@ SDL_Surface* Drawer::renderWorld(RegionFileWorld& world)
 /* Render a single region to an existing surface.
  * The renderer is created in this function to ensure one renderer per thread.
  * They're all just spitting things out to the same surface */
-void Drawer::renderRegion(MC_Point location,  SDL_Surface* surface, RegionFile* region)
+void BaseDrawer::renderRegion(MC_Point location,  SDL_Surface* surface, RegionFile* region)
 {
     SDL_Renderer* renderer = SDL_CreateSoftwareRenderer(surface);
     SDL_RenderSetScale(renderer, scale, scale);
@@ -102,7 +98,7 @@ void Drawer::renderRegion(MC_Point location,  SDL_Surface* surface, RegionFile* 
     SDL_DestroyRenderer(renderer);
 }
 
-void Drawer::renderChunk(MC_Point location,
+void BaseDrawer::renderChunk(MC_Point location,
                          SDL_Renderer* renderer,
                          nbt_node *chunk)
 {
@@ -113,9 +109,7 @@ void Drawer::renderChunk(MC_Point location,
     for(int z = 0; z != 16; ++z)
     for(int x = 0; x != 16; ++x)
     {
-        //The data from the blocks
-        blocks::BlockID id = iface.getHighestSolidBlockID(x,z);
-        SDL_Color color = colors.getBlockColor(id);
+        SDL_Color color = renderBlock(iface, x, z);
 
         //Draw above color on image
         SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
@@ -123,7 +117,7 @@ void Drawer::renderChunk(MC_Point location,
     }
 }
 
-MC_Point Drawer::topleftOffset(RegionFileWorld& world)
+MC_Point BaseDrawer::topleftOffset(RegionFileWorld& world)
 {
     /* We need to find the regions with the lowest X, and Z.
      * They may not nessecerily be the same region. These X and Z
@@ -145,7 +139,7 @@ MC_Point Drawer::topleftOffset(RegionFileWorld& world)
     return { abs(lowestX), abs(lowestZ) };
 }
 
-void Drawer::drawGirdLines(SDL_Surface* s)
+void BaseDrawer::drawGirdLines(SDL_Surface* s)
 {
     SDL_Renderer* renderer = SDL_CreateSoftwareRenderer(s);
     SDL_RenderSetScale(renderer, scale, scale);
@@ -160,7 +154,7 @@ void Drawer::drawGirdLines(SDL_Surface* s)
         SDL_RenderDrawLine(renderer, 0, y, s->w, y);
 }
 
-SDL_Surface* Drawer::createRGBASurface(int w, int h)
+SDL_Surface* BaseDrawer::createRGBASurface(int w, int h)
 {
     SDL_Surface* surface =  SDL_CreateRGBSurface(0, w, h, 32,
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN

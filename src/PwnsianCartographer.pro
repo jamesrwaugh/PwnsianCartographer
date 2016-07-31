@@ -24,12 +24,13 @@ HEADERS += \
     anvil/ChunkInterface.h \
     anvil/RegionFile.h \
     anvil/RegionFileWorld.h \
-    draw/draw.h \
     extlibs/keyvalues.h \
     extlibs/lodepng.h \
     extlibs/savepng.h \
     extlibs/win32_dirent.h \
-    anvil/nbtutility.h
+    anvil/nbtutility.h \
+    draw/BaseDrawer.h \
+    draw/NormalDrawer.h
 
 SOURCES += \
     config.cpp \
@@ -39,9 +40,10 @@ SOURCES += \
     anvil/ChunkInterface.cpp \
     anvil/RegionFile.cpp \
     anvil/RegionFileWorld.cpp \
-    draw/draw.cpp \
     extlibs/keyvalues.cpp \
     extlibs/lodepng.cpp \
     extlibs/savepng.c \
-    anvil/nbtutility.cpp
+    anvil/nbtutility.cpp \
+    draw/BaseDrawer.cpp \
+    draw/NormalDrawer.cpp
 
