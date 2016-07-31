@@ -51,6 +51,9 @@ blocks::BlockID ChunkInterface::Section::getBlockID(int x, int y, int z)
     if(y < 0 || y > 15) {
         error("Trying to read block with y '", y, "'' in chunk ", Y);
     }
+    if(!isValid()) {
+        return blocks::invalidID;
+    }
 
     /* Get the block ID from the block array. If the "Add" array is there,
      * it represents an upper 8 bits of the block ID */
@@ -126,14 +129,13 @@ void ChunkInterface::loadYSection(int y)
     if(y < 0 || y > 15) {
         error("Trying to load invalid Y section ", y, " in chunk");
     }
-
     if(!sections[y].isUndiscovered()) {
         return;
     }
 
     sections[y].load(chunk, y);
 
-    if(sections[y].isInvalid()) {
+    if(!sections[y].isValid()) {
         error("Chunk does not have ", y, " section");
     }
 }
