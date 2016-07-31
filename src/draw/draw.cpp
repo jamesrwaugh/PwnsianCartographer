@@ -2,11 +2,11 @@
 #include <future>
 #include "config.h"
 #include "utility.h"
-#include "blocks.h"
-#include "ChunkInterface.h"
-#include "savepng.h"
-#include "lodepng.h"
-#include "draw.h"
+#include "blocks/blocks.h"
+#include "anvil/ChunkInterface.h"
+#include "extlibs/savepng.h"
+#include "extlibs/lodepng.h"
+#include "draw/draw.h"
 
 namespace draw
 {

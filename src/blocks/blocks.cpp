@@ -1,9 +1,9 @@
 #include <fstream>
 #include "lodepng.h"
 #include "json11.hpp"
-#include "ZipLib/ZipFile.h"
+#include "extlibs/ZipLib/ZipFile.h"
 #include "utility.h"
-#include "blocks.h"
+#include "blocks/blocks.h"
 
 namespace
 {

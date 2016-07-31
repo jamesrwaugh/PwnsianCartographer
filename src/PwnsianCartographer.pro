@@ -14,29 +14,30 @@ unix {
     LIBS += -lpng -lpthread
 }
 
-SOURCES += main.cpp \
-    utility.cpp \
-    draw.cpp \
-    blocks.cpp \
-    lodepng.cpp \
-    ChunkInterface.cpp \
-    config.cpp \
-    keyvalues.cpp \
-    savepng.c \
-    RegionFile.cpp \
-    RegionFileWorld.cpp
-
 HEADERS += \
+    config.h \
     types.h \
     utility.h \
-    draw.h \
-    win32_dirent.h \
-    blocks.h \
-    ChunkInterface.h \
-    config.h \
-    keyvalues.h \
-    savepng.h \
-    lodepng.h \
-    RegionFile.h \
-    RegionFileWorld.h
+    blocks/blocks.h \
+    anvil/ChunkInterface.h \
+    anvil/RegionFile.h \
+    anvil/RegionFileWorld.h \
+    draw/draw.h \
+    extlibs/keyvalues.h \
+    extlibs/lodepng.h \
+    extlibs/savepng.h \
+    extlibs/win32_dirent.h
+
+SOURCES += \
+    config.cpp \
+    main.cpp \
+    utility.cpp \
+    blocks/blocks.cpp \
+    anvil/ChunkInterface.cpp \
+    anvil/RegionFile.cpp \
+    anvil/RegionFileWorld.cpp \
+    draw/draw.cpp \
+    extlibs/keyvalues.cpp \
+    extlibs/lodepng.cpp \
+    extlibs/savepng.c
 

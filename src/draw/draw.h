@@ -3,9 +3,9 @@
 #include <vector>
 
 #include "types.h"
-#include "blocks.h"
-#include "RegionFile.h"
-#include "RegionFileWorld.h"
+#include "blocks/blocks.h"
+#include "anvil/RegionFile.h"
+#include "anvil/RegionFileWorld.h"
 #include "nbt/nbt.h"
 
 /* Rendering section of code. Contains Drawer, which is a class used

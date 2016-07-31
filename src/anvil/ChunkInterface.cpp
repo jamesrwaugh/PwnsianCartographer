@@ -1,5 +1,5 @@
 #include "utility.h"
-#include "ChunkInterface.h"
+#include "anvil/ChunkInterface.h"
 
 /* ============================================================================
  * Predicates and aux functions used with nbt_find, nbt_map */

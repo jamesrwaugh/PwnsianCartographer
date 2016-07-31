@@ -3,7 +3,7 @@
 #include <map>
 #include <SDL2/SDL.h>
 
-#include "RegionFile.h"
+#include "anvil/RegionFile.h"
 
 /* RegionFileWorld is a world of Anvil regions (RegionFiles). It traverses
  * the region/ directory and loads each region, and provides

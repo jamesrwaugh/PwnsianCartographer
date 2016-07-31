@@ -4,7 +4,7 @@
 #include <string>
 #include <map>
 
-#include "ZipLib/ZipArchiveEntry.h"
+#include "extlibs/ZipLib/ZipArchiveEntry.h"
 
 /* Routines to handle returning RGB values for
  * block IDs, and misc utility color functions.

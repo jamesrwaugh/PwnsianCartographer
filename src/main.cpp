@@ -1,12 +1,12 @@
 #include <iostream>
 #include <nbt/nbt.h>
 
-#include "blocks.h"
-#include "RegionFile.h"
-#include "RegionFileWorld.h"
-#include "ChunkInterface.h"
+#include "blocks/blocks.h"
+#include "anvil/RegionFile.h"
+#include "anvil/RegionFileWorld.h"
+#include "anvil/ChunkInterface.h"
 #include "utility.h"
-#include "draw.h"
+#include "draw/draw.h"
 
 //Return part of a path after the last slash, but before any trailing slashes
 std::string removePath(const std::string& path)

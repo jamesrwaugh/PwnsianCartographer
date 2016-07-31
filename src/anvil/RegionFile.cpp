@@ -57,7 +57,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "utility.h"
-#include "RegionFile.h"
+#include "anvil/RegionFile.h"
 
 /* I/O Helpers, mostly from cNBT
  * ========================================================================= */
