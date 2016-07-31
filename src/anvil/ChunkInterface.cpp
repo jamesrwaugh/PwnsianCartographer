@@ -1,25 +1,76 @@
 #include "utility.h"
+#include "anvil/nbtutility.h"
 #include "anvil/ChunkInterface.h"
 
 /* ============================================================================
- * Predicates and aux functions used with nbt_find, nbt_map */
+ * Section */
 
-namespace nbtPredicates
+void ChunkInterface::Section::load(nbt_node* chunk, int y)
 {
+    //A TAG_Compound of all sections in the chunk...
+    nbt_node* nbtsections = nbt_find_by_path(chunk, ".Level.Sections");
 
-/* Used to locate a node which has a Tag_Byte("Y") directly below it
- * equal to the one passed in "aux" */
+    //...Find the section with the Y index we're looking for
+    nbt_node* neededSecion = nbt_find(nbtsections, nbtutil::predicates::findYSection, &y);
 
-bool findYSection(const nbt_node* node, void* aux)
-{
-    nbt_node* y = nbt_find_by_name((nbt_node*)node, "Y");
-    if(y) {
-        int neededY = *(int*)aux;
-        return y->payload.tag_byte == neededY;
+    //Friendly validity check
+    if(!nbtsections || !neededSecion) {
+        state = NOTFOUND;
+        return;
     }
-    return false;
+
+    state      = FOUND;
+    Y          = y;
+    Blocks     = nbtutil::getByteArray(neededSecion, "Blocks");
+    Add        = nbtutil::getByteArray(neededSecion, "Add");
+    BlockLight = nbtutil::getByteArray(neededSecion, "BlockLight");
+    Data       = nbtutil::getByteArray(neededSecion, "Data");
+
+    if(!Blocks || !Data || !BlockLight) {
+        error("Failed to find data arrays in chunk section ", y);
+    }
 }
 
+bool ChunkInterface::Section::isUnknown() const
+{
+     return state == UNDISCOVERED;
+}
+
+bool ChunkInterface::Section::isInvalid() const
+{
+    return state == NOTFOUND;
+}
+
+bool ChunkInterface::Section::isValid() const
+{
+    return state == FOUND;
+}
+
+blocks::BlockID ChunkInterface::Section::getBlockID(int x, int y, int z)
+{
+    if(y < 0 || y > 15) {
+        error("Trying to read block with y '", y, "'' in chunk ", Y);
+    }
+
+    /* Get the block ID from the block array. If the "Add" array is there,
+     * it represents an upper 8 bits of the block ID */
+    int index = y*16*16 + z*16 + x;
+    unsigned id = Blocks[index];
+    if(Add) {
+        id |= (Add[index] << 8);
+    }
+
+    /* Metadata is actaully 2048 bytes, 4 bits block.
+     * One byte has a block in each nibble */
+    unsigned halfindex = index / 2;
+    unsigned meta = 0;
+    if(index % 2 == 0) {
+        meta = Data[halfindex] & 0x0F;
+    } else {
+        meta = (Data[halfindex] & 0xF0) >> 4;
+    }
+
+    return blocks::BlockID(id, meta);
 }
 
 /* ============================================================================
@@ -36,44 +87,18 @@ ChunkInterface::ChunkInterface(nbt_node* chunk)
 
 blocks::BlockID ChunkInterface::getBlockID(int x, int y, int z)
 {
-    /* Convert absolute Y to section, and load the section if needed.
-     * If we don't have its section, return invalid block */
-    int ySection = -1;
     try {
-        ySection = absoluteYToSection(y);
+        //Ensure chunk for this y is loaded
+        int ySection = absoluteYToSection(y);
         loadYSection(ySection);
-        if(sections[ySection].state == Section::NOTFOUND) {
-            return blocks::invalidID;
-        }
-    } catch(...) {
+
+        //Y in a chunk is relative to that 16-high chunk section
+        int yInChunk = y % 16;
+        return sections[ySection].getBlockID(x, yInChunk, z);
+    }
+    catch(...) {
         return blocks::invalidID;
     }
-
-    /* The actual Y coordinate is relative to the section, not the whole
-     * chunk */
-    int sectionY = y % 16;
-
-    /* Get the block ID from the section! If the "Add" array is there,
-     * it represents an upper 8 bits of the block ID */
-    int index = sectionY*16*16 + z*16 + x;
-
-    Section& section = sections[ySection];
-    unsigned id = section.Blocks[index];
-    if(section.Add) {
-        id |= (section.Add[index] << 8);
-    }
-
-    /* Metadata is actaully 2048 bytes, 4 bits block.
-     * One byte has a block in each nibble */
-    unsigned halfindex = index / 2;
-    unsigned meta = 0;
-    if(index % 2 == 0) {
-        meta = section.Data[halfindex] & 0x0F;
-    } else {
-        meta = (section.Data[halfindex] & 0xF0) >> 4;
-    }
-
-    return {id, meta};
 }
 
 blocks::BlockID ChunkInterface::getHighestSolidBlockID(int x, int z)
@@ -98,42 +123,14 @@ blocks::BlockID ChunkInterface::getHighestSolidBlockID(int x, int z)
 
 void ChunkInterface::loadYSection(int y)
 {
-    //Range check to keep sanity
     if(y < 0 || y > 15) {
-        error("Trying to load Y section ", y, " in chunk");
+        error("Trying to load invalid Y section ", y, " in chunk");
     }
 
-    //Check if we've already loaded this. If so, stop.
-    if(sections[y].state != Section::UNDISCOVERED) {
-        return;
-    }
+    sections[y].load(chunk, y);
 
-    //A TAG_Compound of all sections in the chunk...
-    nbt_node* nbtsections = nbt_find_by_path(chunk, ".Level.Sections");
-
-    //...Find the section with the Y index we're looking for
-    nbt_node* neededSecion = nbt_find(nbtsections, nbtPredicates::findYSection, &y);
-
-    //Friendly validity check
-    if(!nbtsections || !neededSecion) {
-        sections[y].state = Section::NOTFOUND;
-        return;
-    }
-
-    //We've found it now, so store in the section cache
-    if(neededSecion)
-    {
-        Section& sect = sections[y];
-        sect.state = Section::FOUND;
-        sect.Y = y;
-        sect.Blocks     = getByteArray(neededSecion, "Blocks");
-        sect.Add        = getByteArray(neededSecion, "Add");
-        sect.BlockLight = getByteArray(neededSecion, "BlockLight");
-        sect.Data       = getByteArray(neededSecion, "Data");
-
-        if(!sect.Blocks || !sect.Data || !sect.BlockLight) {
-            error("Failed to find data arrays in chunk section ", y);
-        }
+    if(sections[y].isInvalid()) {
+        error("Chunk does not have ", y, " section");
     }
 }
 
@@ -142,7 +139,7 @@ void ChunkInterface::loadHeightMap()
     //The height map is an int array at the following path in the chunk root
     nbt_node* heightNode = nbt_find_by_path(chunk, ".Level.HeightMap");
 
-    heightMap = getIntArray(heightNode, "HeightMap");
+    heightMap = nbtutil::getIntArray(heightNode, "HeightMap");
     if(heightMap == nullptr) {
         error("Failed to find heightmap in chunk");
     }
@@ -160,20 +157,4 @@ int ChunkInterface::absoluteYToSection(int y)
     return y / 16;
 }
 
-unsigned char* ChunkInterface::getByteArray(nbt_node* src, const char* name)
-{
-    nbt_node* node = nbt_find_by_name(src, name);
-    if(node && node->type == TAG_BYTE_ARRAY) {
-        return node->payload.tag_byte_array.data;
-    }
-    return nullptr;
-}
 
-int* ChunkInterface::getIntArray(nbt_node* src, const char* name)
-{
-    nbt_node* node = nbt_find_by_name(src, name);
-    if(node && node->type == TAG_INT_ARRAY) {
-        return node->payload.tag_int_array.data;
-    }
-    return nullptr;
-}

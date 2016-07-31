@@ -33,8 +33,16 @@ private:
      * Some sections are not stored, to save space.
      * This is a small interface that points directly into a nbt_node
      * of a chunk Section (i.e, it doesn't own the pointers) */
-    struct Section
+    class Section
     {
+    public:
+        void load(nbt_node* chunk, int y);
+        bool isUnknown() const;
+        bool isInvalid() const;
+        bool isValid() const;
+        blocks::BlockID getBlockID(int x, int y, int z);
+
+    private:
         //TAG_Byte_Array("Blocks") 16x16x16
         byte* Blocks = nullptr;
 
@@ -76,12 +84,6 @@ private:
      * it to sections for use */
     std::array<Section,16> sections;
     void loadYSection(int y);
-
-private:
-    /* NBT helper functions to just get me a pointer to payload data
-     * given by a name in a node */
-    unsigned char* getByteArray(nbt_node* src, const char* name);
-    int* getIntArray(nbt_node* src, const char* name);
 };
 
 #endif // CHUNKINTERFACE_H

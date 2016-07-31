@@ -10,6 +10,8 @@ CONFIG(release, debug|release) {
     QMAKE_CXXFLAGS += -std=c++14
 }
 
+OBJECTS_DIR = "obj"
+
 unix {
     LIBS += -lpng -lpthread
 }
@@ -26,7 +28,8 @@ HEADERS += \
     extlibs/keyvalues.h \
     extlibs/lodepng.h \
     extlibs/savepng.h \
-    extlibs/win32_dirent.h
+    extlibs/win32_dirent.h \
+    anvil/nbtutility.h
 
 SOURCES += \
     config.cpp \
@@ -39,5 +42,6 @@ SOURCES += \
     draw/draw.cpp \
     extlibs/keyvalues.cpp \
     extlibs/lodepng.cpp \
-    extlibs/savepng.c
+    extlibs/savepng.c \
+    anvil/nbtutility.cpp
 
