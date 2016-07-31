@@ -37,7 +37,7 @@ private:
     {
     public:
         void load(nbt_node* chunk, int y);
-        bool isUnknown() const;
+        bool isUndiscovered() const;
         bool isInvalid() const;
         bool isValid() const;
         blocks::BlockID getBlockID(int x, int y, int z);

@@ -31,7 +31,7 @@ void ChunkInterface::Section::load(nbt_node* chunk, int y)
     }
 }
 
-bool ChunkInterface::Section::isUnknown() const
+bool ChunkInterface::Section::isUndiscovered() const
 {
      return state == UNDISCOVERED;
 }
@@ -125,6 +125,10 @@ void ChunkInterface::loadYSection(int y)
 {
     if(y < 0 || y > 15) {
         error("Trying to load invalid Y section ", y, " in chunk");
+    }
+
+    if(!sections[y].isUndiscovered()) {
+        return;
     }
 
     sections[y].load(chunk, y);
