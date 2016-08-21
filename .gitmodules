@@ -9,3 +9,7 @@
 [submodule "src/extlibs/json11"]
 	path = src/extlibs/json11
 	url = https://github.com/dropbox/json11.git
+	
+[submodule "src/extlibs/docopt-cpp"]
+	path = src/extlibs/docopt-cpp
+	url = https://github.com/docopt/docopt.cpp

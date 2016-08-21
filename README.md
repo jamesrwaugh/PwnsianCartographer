@@ -12,14 +12,19 @@ This is a work in progress.
 - Extendable and custom block support
 
 ##Building and Running
-Building requires GCC 4.9 or later or any compiler with C++14 support. A QtCreater project file is provided in /src.
+Building requires GCC 4.9 or later or any compiler with C++14 support. This project uses CMake. Additionally, a  A QtCreater project file is provided in `src`.
+
+Go into the PwnsianCartographer folder:
+```
+git submodule init
+git submodule update
+mkdir build && cd build
+cmake ..
+make
+```
+This will produce the executable in `build/bin`
 
 ###Library Requirements
-- cNBT (https://github.com/FliPPeh/cNBT)
-- ZipLib (https://bitbucket.org/wbenny/ziplib/wiki/Home)
-- Json11 (https://github.com/dropbox/json11)
+All used libraries are included as submodules, except for:
 - SDL2 (http://libsdl.org/)
-- LodePNG (http://lodev.org/lodepng/)
 - libpng on *nix systems (Should probably be included with your OS)
-
-Currently LodePNG and ZipLib are included in the sources.
