@@ -129,21 +129,25 @@ void BlockColors::load(const std::string& zipFileName, const std::string& cacheF
         /* To get a block color, first the cache (cacheFileName, a .json file) is checked.
          * if it's not there, it's recomputed used computecolor. If that happens,
          * "hadToRecompute" is set to true, and a new .json cache will be written out */
-        SDL_Color color;
         Json key = cacheJson[name];
-        Json cachecolor = key["color"];
-        Json crc = key["crc"];
+        if(!key.is_object()) {
+            //If key is not found, look for key with a 0 meta. e.g, "404-0" and not "404"
+            std::string nameWithMeta = name + "-0";
+            key = cacheJson[nameWithMeta];
+        }
 
-        if(key.is_object() && crc.number_value() == zipcrc) {
-            Uint32 pixel = cachecolor.number_value();
-            SDL_GetRGBA(pixel, rgba, &color.r, &color.g, &color.b, &color.a);
+        SDL_Color blockColor;
+
+        if(key.is_object() && (unsigned)key["crc"].int_value() == zipcrc) {
+            Uint32 cachePixel = key["color"].int_value();
+            SDL_GetRGBA(cachePixel, rgba, &blockColor.r, &blockColor.g, &blockColor.b, &blockColor.a);
         } else {
-            color = computeColor(entry);
+            blockColor = computeColor(entry);
             hadToRecompute = true;
         }
 
         //Store color and CRC in this object
-        blockColors[name] = {color, zipcrc};
+        blockColors[name] = {blockColor, zipcrc};
     }
 
     //If any blocks were not found in cache
@@ -223,32 +227,24 @@ void BlockColors::saveNewJsonCache() const
         error("Could not open ", cacheFileName, " for writing new cahce");
     }
 
-    /* The method here is to build strings to create JSON manually.
-     * Currently, json11 doesn't support adding to objects */
+    json11::Json::object root;
 
-    file << "{\n";
-    for(auto it = blockColors.begin(); it != blockColors.end(); ++it)
+    for(const auto& pair : blockColors)
     {
-        std::string id = it->first; //BlockID -> string conversion
-        auto&& value = it->second;
+        std::string id = pair.first; //BlockID -> string conversion
+        auto&& value = pair.second;
 
         //Convience
         SDL_Color color = value.first;
         unsigned crc = value.second;
         Uint32 pixel = SDL_MapRGBA(rgba, color.r, color.g, color.b, color.a);
 
-        //This is not fun.
-        file << "\t\"" << id << "\":" << "{\"crc\":" << crc << ", \"color\":" << pixel << "}";
-
-        //Add a comma if not last element
-        auto it2 = it;
-        if(++it2 != blockColors.end()) {
-            file << ',';
-        }
-
-        file << '\n';
+        root.insert(
+            { id, json11::Json::object{{"crc",(int)crc}, {"color",(int)pixel}} }
+        );
     }
-    file << "}";
+
+    file << json11::Json(root).dump() << std::endl;
 
     file.close();
 }
