@@ -2,7 +2,7 @@
 #include "lodepng.h"
 #include "json11.hpp"
 #include "extlibs/ZipLib/ZipFile.h"
-#include "utility.h"
+#include "utility/utility.h"
 #include "blocks/blocks.h"
 
 namespace
@@ -264,7 +264,7 @@ SDL_Color BlockColors::getBlockColor(const BlockID& blockid) const
         /* Base recursive case, if meta 0 isn't found, we safely
          * say we don't know the block */
         if(blockid.meta == 0) {
-            return {255, 20, 147, 255}; //Block not known--return pink color
+            return {255, 20, 147, 255}; //Unknown color
         }
 
         /* If not found, check if we have the block with no metadata.

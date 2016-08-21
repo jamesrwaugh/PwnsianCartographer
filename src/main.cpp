@@ -1,7 +1,7 @@
 #include <iostream>
 #include <nbt/nbt.h>
 
-#include "utility.h"
+#include "utility/utility.h"
 #include "blocks/blocks.h"
 #include "anvil/RegionFile.h"
 #include "anvil/RegionFileWorld.h"

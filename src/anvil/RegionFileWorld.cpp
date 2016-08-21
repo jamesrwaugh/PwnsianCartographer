@@ -5,7 +5,7 @@
 #endif
 #include <algorithm>
 
-#include "utility.h"
+#include "utility/utility.h"
 #include "anvil/RegionFileWorld.h"
 
 RegionFileWorld::RegionFileWorld(std::string rootpath)

@@ -1,11 +1,11 @@
 #include <SDL2/SDL.h>
 #include <future>
 #include "config.h"
-#include "utility.h"
 #include "blocks/blocks.h"
 #include "anvil/ChunkInterface.h"
-#include "extlibs/savepng.h"
-#include "extlibs/lodepng.h"
+#include "utility/utility.h"
+#include "utility/savepng.h"
+#include "utility/lodepng.h"
 #include "draw/BaseDrawer.h"
 
 namespace draw

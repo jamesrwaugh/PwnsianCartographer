@@ -19,15 +19,15 @@ unix {
 HEADERS += \
     config.h \
     types.h \
-    utility.h \
     blocks/blocks.h \
     anvil/ChunkInterface.h \
     anvil/RegionFile.h \
     anvil/RegionFileWorld.h \
-    extlibs/keyvalues.h \
-    extlibs/lodepng.h \
-    extlibs/savepng.h \
-    extlibs/win32_dirent.h \
+    utility/keyvalues.h \
+    utility/utility.h \
+    utility/lodepng.h \
+    utility/savepng.h \
+    utility/win32_dirent.h \
     anvil/nbtutility.h \
     draw/BaseDrawer.h \
     draw/NormalDrawer.h
@@ -35,14 +35,14 @@ HEADERS += \
 SOURCES += \
     config.cpp \
     main.cpp \
-    utility.cpp \
     blocks/blocks.cpp \
     anvil/ChunkInterface.cpp \
     anvil/RegionFile.cpp \
     anvil/RegionFileWorld.cpp \
-    extlibs/keyvalues.cpp \
-    extlibs/lodepng.cpp \
-    extlibs/savepng.c \
+    utility/utility.cpp \
+    utility/keyvalues.cpp \
+    utility/lodepng.cpp \
+    utility/savepng.c \
     anvil/nbtutility.cpp \
     draw/BaseDrawer.cpp \
     draw/NormalDrawer.cpp
