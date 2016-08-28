@@ -5,7 +5,7 @@
 #include "utility/keyvalues.h"
 
 /* Singleton wrapper around a KeyValue object, used
- * to load from the config file, config.ini */
+ * to load from the config file */
 
 class config
 {

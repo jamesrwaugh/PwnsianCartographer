@@ -1,6 +1,6 @@
 #include <SDL2/SDL.h>
 #include <future>
-#include "config.h"
+
 #include "blocks/blocks.h"
 #include "anvil/ChunkInterface.h"
 #include "utility/utility.h"
@@ -11,23 +11,11 @@
 namespace draw
 {
 
-BaseDrawer::BaseDrawer()
+SDL_Surface* BaseDrawer::renderWorld(RegionFileWorld& world, const arguments::Args& options)
 {
-    //Max drawing threads; < 0 means use number of cores aviliable
-    int threads = config::get().GetInt("drawer-max-threads");
-    if(threads < 0) {
-        maxThreads = SDL_GetCPUCount();
-    } else {
-        maxThreads = threads;
-    }
+    //Virtual call
+    recieveArguments(options);        
 
-    //The scale of the image. Minimum is 1
-    scale = config::get().GetInt("drawer-scale");
-    scale = std::max(1u, scale);
-}
-
-SDL_Surface* BaseDrawer::renderWorld(RegionFileWorld& world)
-{
     //Find the lowest X and Z coordinates for proper offset
     MC_Point offset = topleftOffset(world);
 
@@ -71,11 +59,17 @@ SDL_Surface* BaseDrawer::renderWorld(RegionFileWorld& world)
     }
 
     //Add cool grid lines
-    if(config::get().GetInt("drawer-draw-gridlines")) {
+    if(gridlines) {
         drawGirdLines(surface);
     }
 
     return surface;
+}
+
+SDL_Surface* BaseDrawer::renderWorld(const std::string& filename, const arguments::Args& options)
+{
+    RegionFileWorld world(filename);
+    return renderWorld(world, options);
 }
 
 /* Render a single region to an existing surface.
@@ -171,6 +165,16 @@ SDL_Surface* BaseDrawer::createRGBASurface(int w, int h)
     return surface;
 }
 
+void BaseDrawer::recieveArguments(const arguments::Args& options)
+{
+    //Max drawing threads
+    maxThreads = options.numThreads;
+    //The scale of the image
+    scale = options.scale;
+    //Draw gridlines
+    gridlines = options.gridlines;
+}
+
 }
 
 namespace draw
@@ -185,7 +189,10 @@ bool saveSurfacePNG(SDL_Surface* surface, const std::string& filename)
     int h = surface->h;
     return lodepng::encode(filename, (unsigned char*)surface->pixels, w, h) == 0;
 #else
-    return SDL_SavePNG(surface, filename.c_str());
+    int success =  SDL_SavePNG(surface, filename.c_str());
+    if(success != 0) {
+        error("Could not save PNG: ", SDL_GetError());
+    }
 #endif
 }
 

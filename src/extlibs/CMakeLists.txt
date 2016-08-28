@@ -3,7 +3,7 @@ if(COMMAND cmake_policy)
     cmake_policy(SET CMP0003 NEW)
 endif(COMMAND cmake_policy)
 
-add_subdirectory(cnbt)
+add_subdirectory(nbt)
 add_subdirectory(json11)
 add_subdirectory(docopt-cpp)
 
@@ -22,7 +22,7 @@ add_library(zip_clibs
     ${SRC_LZMA} 
     ${SRC_BZIP2} 
 )
-target_compile_options(zip_clibs PUBLIC -fPIC -Wno-enum-conversion -O3)
+target_compile_options(zip_clibs PUBLIC -fPIC -O3)
 
 #ZipLib itself
 add_library(zip 

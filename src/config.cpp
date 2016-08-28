@@ -4,7 +4,7 @@
 
 bool config::isLoaded = false;
 KeyValue config::instance;
-std::string config::filename = "config.ini";
+std::string config::filename;
 
 KeyValue& config::get()
 {
@@ -14,7 +14,7 @@ KeyValue& config::get()
             instance.LoadFromFile(filename);
             isLoaded = true;
         } else {
-            error("Could not load config file ", filename);
+            error("Could not load config file \"", filename, "\"");
         }
     }
     return instance;

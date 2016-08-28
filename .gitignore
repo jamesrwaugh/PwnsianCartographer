@@ -46,5 +46,6 @@ cmake_install.cmake
 install_manifest.txt
 CTestTestfile.cmake
 
-#PwnsianCartographer build folder
+#PwnsianCartographer
 build/
+PwnsianCartographer

@@ -7,6 +7,7 @@
 #include "blocks/blocks.h"
 #include "anvil/RegionFile.h"
 #include "anvil/RegionFileWorld.h"
+#include "utility/arguments.h"
 #include "nbt/nbt.h"
 
 /* Rendering section of code. Contains Drawer, which is a class used
@@ -17,16 +18,17 @@ namespace draw
 
 /* Main world rendering class */
 
-class BaseDrawer
+class BaseDrawer : arguments::ArgumentReciever
 {
 public:
-    BaseDrawer();
-
-    /* Renders a world, returns an RGBA SDL_Surface of the image.
+    /* Renders a world (loaded or from file); returns an RGBA SDL_Surface of the image.
+     * "options" are entered from the command line, to be used for drawing options.
      * Can be saved by draw::saveSurfacePNG (or your method) */
-    SDL_Surface* renderWorld(RegionFileWorld& world);
+    SDL_Surface* renderWorld(RegionFileWorld& world, const arguments::Args& options);
+    SDL_Surface* renderWorld(const std::string& filename, const arguments::Args& options);
 
 protected:
+    void recieveArguments(const arguments::Args& args) override;
     virtual SDL_Color renderBlock(ChunkInterface iface, int x, int z) = 0;
 
 private:
@@ -36,9 +38,10 @@ private:
     //The maximum number of thread to use when rendering
     //A value of 0 will spawn 1 thread, though
     unsigned maxThreads = 1;
-
     //The scale of the image. 1x is 1-pixel-per-block, 2x is a 2x2 square per block...
     unsigned scale = 1;
+    //Draw gridline options
+    bool gridlines = false;
 
     //Render a single chunk to an existing surface
     void renderChunk(MC_Point location, SDL_Renderer *renderer, nbt_node* chunk);

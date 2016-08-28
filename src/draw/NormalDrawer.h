@@ -8,11 +8,9 @@ namespace draw
 
 class NormalDrawer : public BaseDrawer
 {
-public:
-    NormalDrawer();
-
 protected:
-    virtual SDL_Color renderBlock(ChunkInterface iface, int x, int z) override;
+    SDL_Color renderBlock(ChunkInterface iface, int x, int z) override;
+    void recieveArguments(const arguments::Args& options) override;
 
 private:
     //Item to get colors based on block IDs
