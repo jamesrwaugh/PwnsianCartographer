@@ -54,3 +54,13 @@ std::string readFile(const std::string& filename)
     std::ifstream is(filename, std::ios::binary);
     return readStream(is);
 }
+
+std::string removePath(const std::string& fullpath)
+{
+    //Absolute last alnum character in string,
+    //and last slash in string, before last alnum chracter
+    size_t lastAlphaPos = fullpath.find_last_not_of("\\/");
+    size_t firstAlphaPos = fullpath.find_last_of("\\/", lastAlphaPos);
+
+    return fullpath.substr(firstAlphaPos + 1, lastAlphaPos - firstAlphaPos);
+}

@@ -74,4 +74,7 @@ std::string readStream(std::istream &is);
 //Loads and returns the entire contents of a file in a string
 std::string readFile(const std::string& filename);
 
+//Return part of a path after the last slash, but before any trailing slashes (i.e, filename)
+std::string removePath(const std::string& fullpath);
+
 #endif

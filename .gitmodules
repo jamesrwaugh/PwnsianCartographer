@@ -1,7 +1,3 @@
-[submodule "src/extlibs/cnbt"]
-	path = src/extlibs/cnbt
-	url = https://github.com/FliPPeh/cNBT.git
-	
 [submodule "src/extlibs/ZipLib"]
 	path = src/extlibs/ZipLib
 	url = https://bitbucket.org/wbenny/ziplib.git
@@ -13,3 +9,7 @@
 [submodule "src/extlibs/docopt-cpp"]
 	path = src/extlibs/docopt-cpp
 	url = https://github.com/docopt/docopt.cpp
+
+[submodule "build/src/extlibs/nbt"]
+	path = build/src/extlibs/nbt
+	url = https://github.com/FliPPeh/cNBT.git

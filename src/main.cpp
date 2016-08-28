@@ -1,33 +1,42 @@
 #include <iostream>
-#include <nbt/nbt.h>
-
+#include <map>
 #include "utility/utility.h"
-#include "blocks/blocks.h"
-#include "anvil/RegionFile.h"
 #include "anvil/RegionFileWorld.h"
-#include "anvil/ChunkInterface.h"
 #include "draw/NormalDrawer.h"
+#include "docopt-cpp/docopt.h"
 
-//Return part of a path after the last slash, but before any trailing slashes
-std::string removePath(const std::string& path)
-{
-    //Absolute last alnum character in string,
-    //and last slash in string, before last alnum chracter
-    size_t lastAlphaPos = path.find_last_not_of("\\/");
-    size_t firstAlphaPos = path.find_last_of("\\/", lastAlphaPos);
+static const char USAGE[] =
+R"(Pwnsian Cartographer, Minecraft World Renderer
 
-    return path.substr(firstAlphaPos + 1, lastAlphaPos - firstAlphaPos);
-}
+    Usage:
+      PwnsianCartographer <world> 
+          [--gridlines] [--items-zip <filename>] 
+          [--config-file <filename>] 
+          [--threads <n>] [--scale <scale>]
+      PwnsianCartographer ( -h | --help )
+
+    Options:
+      -h --help            Show this screen.
+      --gridlines          Add region-sized gridlines to output
+      --items-zip <file>   Load block colors from this .zip file [default: items.zip]
+      --config-file <file> Use a configuraiton file for options
+      --scale <scale>      Scale output. 1x,2x,... [default: 1]
+      --threads <num>      Limit number of rendering threads. [default: #CPU Cores]
+)";
 
 int main(int argc, char** argv)
 {
-    if(argc < 2) {
-        log("Call with a Minecraft world folder");
-        exit(1);
-    }
-
     try
     {
+        auto args = docopt::docopt(USAGE, { argv+1, argv+argc }, true); 
+
+        for(auto const& arg : args) {
+            std::cout << arg.first <<  " " << arg.second << std::endl;
+        }
+
+        exit(1);
+            
+
         //Load
         std::string worldName(argv[1]);
         RegionFileWorld world(worldName);

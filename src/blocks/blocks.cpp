@@ -1,7 +1,7 @@
 #include <fstream>
-#include "lodepng.h"
 #include "json11.hpp"
 #include "ZipLib/ZipFile.h"
+#include "utility/lodepng.h"
 #include "utility/utility.h"
 #include "blocks/blocks.h"
 
