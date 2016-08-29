@@ -29,7 +29,7 @@ public:
 
 protected:
     void recieveArguments(const arguments::Args& args) override;
-    virtual SDL_Color renderBlock(ChunkInterface iface, int x, int z) = 0;
+    virtual SDL_Color renderBlock(ChunkInterface& iface, int x, int z) = 0;
 
 private:
     //Width of a region in blocks

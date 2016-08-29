@@ -4,7 +4,7 @@
 namespace draw
 {
 
-SDL_Color NormalDrawer::renderBlock(ChunkInterface iface, int x, int z)
+SDL_Color NormalDrawer::renderBlock(ChunkInterface& iface, int x, int z)
 {
     blocks::BlockID id = iface.getHighestSolidBlockID(x, z);
     return colors.getBlockColor(id);

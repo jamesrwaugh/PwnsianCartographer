@@ -9,7 +9,7 @@ namespace draw
 class NormalDrawer : public BaseDrawer
 {
 protected:
-    SDL_Color renderBlock(ChunkInterface iface, int x, int z) override;
+    SDL_Color renderBlock(ChunkInterface& iface, int x, int z) override;
     void recieveArguments(const arguments::Args& options) override;
 
 private:
