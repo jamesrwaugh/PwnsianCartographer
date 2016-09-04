@@ -2,6 +2,12 @@
 #define ARGUMENTS_H
 #include "docopt-cpp/docopt.h"
 
+//Forward declaration
+namespace draw
+{
+    enum class DrawerType;
+}
+
 /* Wrapper to read arguments from either the command line
  * via docopt, or from config file if specified on command line.
  * The output */ 
@@ -18,15 +24,17 @@ class Args
 public:
     Args(const std::string& USAGE, int argc, char** argv);
 
+    //Command line properties
     bool gridlines = false;
     unsigned numThreads = 0;
     unsigned scale = 1;
     std::string worldName; 
     std::string itemZipFilename;
     std::string outputFilename;
+    draw::DrawerType requestedDrawer;
+
 private:
-    typedef std::map<std::string, docopt::value> docoptReturn;
-    void fromDocOpt(docoptReturn& opt);
+    void fromDocOpt(std::map<std::string, docopt::value>& opt);
     void fromConfigFile(const std::string& configFilename);
     void validateArguments();
 };

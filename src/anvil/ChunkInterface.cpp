@@ -88,6 +88,25 @@ ChunkInterface::ChunkInterface(nbt_node* chunk)
     loadHeightMap();
 }
 
+Uint8 ChunkInterface::getHighestSolidBlockY(int x, int z)
+{
+    /* To get the highest Y, check the heightmap of that X and Z.
+     * The heightMap at that X,Z location will be the lowest location where light
+     * is at full strength. */
+    int y = heightMap[z*16 + x];
+
+    /* To validate, try to get block at the heightmap (Often, this section is not present).
+     * It must also be not air to be the highest *solid* id */
+    blocks::BlockID id = getBlockID(x, y, z);
+    if( id != blocks::invalidID && id.id != 0 ) {
+        return y;
+    }
+
+    /* Otherwise the highest *solid* block is one-below the heightmap, because
+     * the section either isn't loaded, or it's air */
+    return std::max(y-1, 0);
+}
+
 blocks::BlockID ChunkInterface::getBlockID(int x, int y, int z)
 {
     try {
@@ -106,22 +125,7 @@ blocks::BlockID ChunkInterface::getBlockID(int x, int y, int z)
 
 blocks::BlockID ChunkInterface::getHighestSolidBlockID(int x, int z)
 {
-    /* To get the highest block, return the block at X Y Z, where the Y
-     * is the heightmap of that X and Z. heightMap at that X,Z location
-     * will be the lowest location where light is at full strength,
-     * which may or may not be air. */
-    int y = heightMap[z*16 + x];
-
-    /* Try to get block at the heightmap. Often, this section is not loaded.
-     * If it's also not air, like redstone, return it */
-    blocks::BlockID id = getBlockID(x, y, z);
-    if( id != blocks::invalidID && id.id != 0 ) {
-        return id;
-    }
-
-    /* Otherwise the highest *solid* block is one-below the heightmap, because
-     * the section either isn't loaded, or it's air */
-    return getBlockID(x, std::max(y-1,0), z);
+    return getBlockID(x, getHighestSolidBlockY(x,z), z);
 }
 
 void ChunkInterface::loadYSection(int y)

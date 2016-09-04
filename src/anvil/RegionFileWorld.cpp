@@ -64,7 +64,7 @@ MC_Point RegionFileWorld::getSize()
 std::pair<bool,RegionFileWorld::RegionCoord>
     RegionFileWorld::parseFilename(const std::string& filename)
 {
-    /* Sample: "r.1.0.mca" Should have three dots.
+    /* Sample: "r.1.0.mca" Should have three dots and contain ".mca".
      * Then, the substrings between them are examined for the x,z ints */
     int x = 0, z = 0;
     bool valid = false;
@@ -73,9 +73,12 @@ std::pair<bool,RegionFileWorld::RegionCoord>
            dotpos1 = filename.find('.', dotpos0+1),
            dotpos2 = filename.find('.', dotpos1+1);
 
+    bool hasMcaExtension = filename.find(".mca") != std::string::npos;
+
     if(dotpos0 != std::string::npos &&
        dotpos1 != std::string::npos &&
-       dotpos2 != std::string::npos )
+       dotpos2 != std::string::npos &&
+       hasMcaExtension )
     {
         x = std::atoi(filename.substr(dotpos0+1, dotpos1).c_str());
         z = std::atoi(filename.substr(dotpos1+1, dotpos2).c_str());

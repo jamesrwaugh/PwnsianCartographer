@@ -6,6 +6,7 @@ This is a work in progress.
 ![World Render](NewerWorldRender.png)
 
 ##Features
+- Normal and heightmap output
 - Multi-core rendering 
 - Output imaging scaling (1x, 2x, ...)
 - Dynamic block color generation
@@ -14,23 +15,25 @@ This is a work in progress.
 ##Usage
 ```
 Usage:
-    PwnsianCartographer <world> 
-        [-g | --gridlines] 
-        [-i --items-zip=<filename>] 
-        [-c --config-file=<filename>] 
-        [-t --threads=<n>] 
+    PwnsianCartographer <world> <render-type>
+        [-g | --gridlines]
+        [-i --items-zip=<filename>]
+        [-t --threads=<n>]
         [-s --scale=<amount>]
         [-o --output=<file>]
+    PwnsianCartographer <world> (--config-file=<file>)
     PwnsianCartographer ( -h | --help )
 
 Options:
+    render-type             Output render type. Valid: (normal, height)
     -h --help               Show this screen.
     -g --gridlines          Add region-sized gridlines to output
+    -c --config-file <file> Use a configuraiton file for all options
     -i --items-zip <file>   Load block colors from this .zip file [default: items.zip]
-    -c --config-file <file> Use a configuraiton file for options
     -s --scale <amount>     Scale output. 1x, 2x, ... [default: 1]
     -t --threads <n>        Limit number of rendering threads; 0 for #CPU Cores [default: 0]
     -o --output <file>      Place output image in file instead of in "."
+
 ```
 
 ###Config file
@@ -47,7 +50,7 @@ threads=0
 ```
 
 ##Building and Running
-Building requires GCC 4.9 or later or any compiler with C++14 support. This project uses CMake. Additionally, a  A QtCreater project file is provided in `src`.
+Building requires GCC 4.9 or later or any compiler with C++14 support. This project uses CMake.
 
 Go into the PwnsianCartographer folder:
 ```
@@ -63,4 +66,5 @@ This will produce the executable in `build/bin`
 All used libraries are included as submodules, except for:
 - SDL2 (http://libsdl.org/)
 - libpng on *nix systems (Should probably be included with your OS)
+
 

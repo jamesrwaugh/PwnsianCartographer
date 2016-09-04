@@ -1,7 +1,6 @@
-#ifndef DRAW_H
-#define DRAW_H
+#ifndef BASEDRAWER_H
+#define BASEDRAWER_H
 #include <vector>
-#include <SDL2/SDL.h>
 #include "types.h"
 #include "anvil/ChunkInterface.h"
 #include "blocks/blocks.h"
@@ -10,8 +9,9 @@
 #include "utility/arguments.h"
 #include "nbt/nbt.h"
 
-/* Rendering section of code. Contains Drawer, which is a class used
- * to render chunks, regons, and entire worlds to SDL_Surfaces. */
+/* Abstract base renderer class. BaseDrawer handles threads, image stitching,
+ * gridlines, regions, and everything else. Child classes provide how to render a block
+ * (renderBlock) which BaseDrawer places on the final images */
 
 namespace draw
 {
@@ -65,13 +65,4 @@ private:
 
 }
 
-namespace draw
-{
-
-/* Generic helper function to save a surface to a PNG at "filename"
- * return true on success */
-bool saveSurfacePNG(SDL_Surface* surface, const std::string& filename);
-
-}
-
-#endif // DRAW_H
+#endif // BASEDRAWER_H

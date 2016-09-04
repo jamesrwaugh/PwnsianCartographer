@@ -1,6 +1,13 @@
 #include "utility.h"
 #include <iostream>
 #include <fstream>
+#ifndef _WIN32
+ #include <unistd.h> //for access()
+#else
+ #include  <io.h>
+ #include  <stdio.h>
+ #include  <stdlib.h>
+#endif
 
 std::vector<std::string> Split(const std::string& target, const std::string& delims)
 {
@@ -63,4 +70,14 @@ std::string removePath(const std::string& fullpath)
     size_t firstAlphaPos = fullpath.find_last_of("\\/", lastAlphaPos);
 
     return fullpath.substr(firstAlphaPos + 1, lastAlphaPos - firstAlphaPos);
+}
+
+bool fileExists(const std::string& filename)
+{
+#ifndef _WIN32
+ #define ACCESS access
+#else
+ #define ACCESS _access
+#endif
+    return ACCESS(filename.c_str(), F_OK) != -1;
 }

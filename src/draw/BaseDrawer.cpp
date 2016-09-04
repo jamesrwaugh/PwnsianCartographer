@@ -4,7 +4,6 @@
 #include "blocks/blocks.h"
 #include "anvil/ChunkInterface.h"
 #include "utility/utility.h"
-#include "utility/savepng.h"
 #include "utility/lodepng.h"
 #include "draw/BaseDrawer.h"
 
@@ -173,27 +172,6 @@ void BaseDrawer::recieveArguments(const arguments::Args& options)
     scale = options.scale;
     //Draw gridlines
     gridlines = options.gridlines;
-}
-
-}
-
-namespace draw
-{
-
-/* On Windows, use a lodepng (no extra dependencies). *nix, use libpng */
-
-bool saveSurfacePNG(SDL_Surface* surface, const std::string& filename)
-{
-#ifdef __WINDOWS__
-    int w = surface->w;
-    int h = surface->h;
-    return lodepng::encode(filename, (unsigned char*)surface->pixels, w, h) == 0;
-#else
-    int success =  SDL_SavePNG(surface, filename.c_str());
-    if(success != 0) {
-        error("Could not save PNG: ", SDL_GetError());
-    }
-#endif
 }
 
 }

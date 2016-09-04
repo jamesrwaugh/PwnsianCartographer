@@ -3,6 +3,8 @@
 
 #include "BaseDrawer.h"
 
+/* NormalDrawer is the normal color drawer. Output is the block's color */
+
 namespace draw
 {
 

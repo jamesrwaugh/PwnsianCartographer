@@ -16,6 +16,9 @@ class ChunkInterface
 public:
     ChunkInterface(nbt_node* chunk);
 
+    /* Returns position of highest solod block at X and Z.*/
+    Uint8 getHighestSolidBlockY(int x, int z);
+
     /* Generic return a block ID at X,Y,Z */
     blocks::BlockID getBlockID(int x, int y, int z);
 
@@ -23,7 +26,7 @@ public:
      * For a top-down view, this is the block we render. */
     blocks::BlockID getHighestSolidBlockID(int x, int z);
 
-    /* Important! Gives the light level (0-15) of the highest block at X,Z.
+    /* TODO: Gives the light level (0-15) of the highest block at X,Z.
      * With above, this can be used to draw lights */
     Uint8 getHighestLightLevel(int x, int z);
 

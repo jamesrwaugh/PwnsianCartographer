@@ -77,4 +77,7 @@ std::string readFile(const std::string& filename);
 //Return part of a path after the last slash, but before any trailing slashes (i.e, filename)
 std::string removePath(const std::string& fullpath);
 
+//Does a file exists?
+bool fileExists(const std::string& filename);
+
 #endif

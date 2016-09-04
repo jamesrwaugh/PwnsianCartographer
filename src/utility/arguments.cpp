@@ -1,5 +1,6 @@
 #include <iostream>
 #include <SDL2/SDL.h>
+#include "draw/draw.h"
 #include "config.h"
 #include "utility/utility.h"
 #include "utility/arguments.h"
@@ -9,13 +10,13 @@ namespace arguments
 
 Args::Args(const std::string& USAGE, int argc, char** argv)
 {
-    auto args = docopt::docopt(USAGE, { argv+1, argv+argc }, true);
+    auto args = docopt::docopt(USAGE, { argv+1, argv+argc }, true, __DATE__);
 
 #if 0
     for(auto const& arg : args) {
         std::cout << arg.first <<  " " << arg.second << std::endl;
     }
-#endif  
+#endif
 
     //<world> is the only required command line arugment
     worldName = args["<world>"].asString();
@@ -32,15 +33,19 @@ Args::Args(const std::string& USAGE, int argc, char** argv)
     validateArguments();
 }
 
-void Args::fromDocOpt(docoptReturn& args)
+void Args::fromDocOpt(std::map<std::string, docopt::value>& args)
 {
     numThreads = args["--threads"].asLong();
     gridlines = args["--gridlines"].asBool();
     scale = args["--scale"].asLong();
     itemZipFilename = args["--items-zip"].asString();
 
+    //User choses drawer type
+    std::string renderType = args["<render-type>"].asString();
+    requestedDrawer = draw::getDrawerType(renderType); //Also validates type here
+
     //output has no default, so we need to check for null.
-    //validateArguments() will handle null output string anyway
+    //validateArguments() will handle empty output string anyway
     auto& outputArg = args["--output"];
     if(outputArg) {
         outputFilename = outputArg.asString();
@@ -57,11 +62,13 @@ void Args::fromConfigFile(const std::string& configFilename)
     scale = config.GetInt("scale");
     itemZipFilename = config.GetString("items-zip");
     outputFilename = config.GetString("output");
+    std::string renderType = config.GetString("render-type");
+    requestedDrawer = draw::getDrawerType(renderType); //Also validates type here
 }
 
 void Args::validateArguments()
 {
-    if(numThreads <= 0) {
+    if(numThreads <= 0) { //This is actually the default case
         numThreads = SDL_GetCPUCount();
     }
     if(scale < 1) {
@@ -69,6 +76,9 @@ void Args::validateArguments()
     }
     if(outputFilename.empty()) {
         outputFilename = removePath(worldName)+"-output.png";
+    }
+    if(!fileExists(itemZipFilename)) {
+        error("Could not find items archive \"", itemZipFilename, "\"");
     }
 }
 

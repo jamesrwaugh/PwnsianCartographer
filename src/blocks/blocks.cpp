@@ -101,9 +101,6 @@ void BlockColors::load(const std::string& zipFileName, const std::string& cacheF
 
     //Zip file interface
     auto archive = ZipFile::Open(zipFileName);
-    if(archive == nullptr) {
-        error("Could not find items archive ", zipFileName);
-    }
 
     //Cache JSON. This is a single { } of key:value of "blockid-meta" to .zip CRC and RGBA color
     // ex: {"2-4": {"crc": 5234231, "color": 2489974272}, ... }
