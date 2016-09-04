@@ -92,7 +92,12 @@ Uint8 ChunkInterface::getHighestSolidBlockY(int x, int z)
 {
     /* To get the highest Y, check the heightmap of that X and Z.
      * The heightMap at that X,Z location will be the lowest location where light
-     * is at full strength. */
+     * is at full strength.
+     *
+     * PROBLEM: The heightmap method breaks down on columns where a block is at the
+     * highest possible Y level, becaue light is not at full at any point in the chunk.
+     * In this case, it will be zero.
+     */
     int y = heightMap[z*16 + x];
 
     /* To validate, try to get block at the heightmap (Often, this section is not present).
