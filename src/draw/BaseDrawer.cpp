@@ -102,6 +102,7 @@ void BaseDrawer::renderChunk(MC_Point location,
     for(int z = 0; z != 16; ++z)
     for(int x = 0; x != 16; ++x)
     {
+    	//Virtual call
         SDL_Color color = renderBlock(iface, x, z);
 
         //Draw above color on image
@@ -139,12 +140,14 @@ void BaseDrawer::drawGirdLines(SDL_Surface* s)
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 
     //Vertical lines
-    for(int x = 0; x < s->w; x += 32*16)
+    for(int x = 0; x < s->w; x += regionsize)
         SDL_RenderDrawLine(renderer, x, 0, x, s->h);
 
     //Horizontal lines
-    for(int y = 0; y < s->h; y += 32*16)
+    for(int y = 0; y < s->h; y += regionsize)
         SDL_RenderDrawLine(renderer, 0, y, s->w, y);
+        
+    SDL_DestroyRenderer(renderer);
 }
 
 SDL_Surface* BaseDrawer::createRGBASurface(int w, int h)

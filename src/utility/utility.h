@@ -66,6 +66,13 @@ void log(Ts... args)
     std::cout << ss.str() << std::endl;
 }
 
+//Constrain value between low and high
+template<typename T>
+T clamp(const T& value, const T& low, const T& high)
+{
+    return std::min(high, std::max(value,low));
+}
+
 //Get the length of a stream, usually a file
 long getLength(std::istream& is);
 

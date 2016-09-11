@@ -10,6 +10,6 @@
 	path = src/extlibs/docopt-cpp
 	url = https://github.com/docopt/docopt.cpp
 
-[submodule "build/src/extlibs/nbt"]
-	path = build/src/extlibs/nbt
+[submodule "src/extlibs/nbt"]
+	path = src/extlibs/nbt
 	url = https://github.com/FliPPeh/cNBT.git

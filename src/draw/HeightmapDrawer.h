@@ -14,6 +14,7 @@ protected:
     SDL_Color renderBlock(ChunkInterface& iface, int x, int z) override;
 
 private:
+    std::array<SDL_Color, 360> colorCache;
     SDL_Color hsv2rgb(float h, float s, float v);
 };
 

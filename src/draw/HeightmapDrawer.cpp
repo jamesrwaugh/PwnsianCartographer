@@ -1,3 +1,4 @@
+#include "utility/utility.h"
 #include "draw/HeightmapDrawer.h"
 
 namespace draw
@@ -5,12 +6,25 @@ namespace draw
 
 SDL_Color HeightmapDrawer::renderBlock(ChunkInterface& iface, int x, int z)
 {
+    //Right-most hue on the HSV scale to consider any block
+    const int MAX_HUE = 180;
+    //Minecraft height we consider maximum
+    const int MAX_MC_HEIGHT = 128;
+
     Uint8 hightestY = iface.getHighestSolidBlockY(x, z);
 
-    // 0..128 (Minecraft height) scaled to 0..180 (HSV hue range)
-    int h = ((float)hightestY / 128) * 180;
+    // 0..MAX_MC_HEIGHT scaled to 0..MAX_HUE (HSV hue range)
+    // "MAX_HUE - hue" is used to go from the center of the HSV scale to the left
+    // (light blue to red). See a HSV hue diagram for colors
+    int hue = MAX_HUE - ((float)hightestY / MAX_MC_HEIGHT) * MAX_HUE;
+    hue = clamp(hue, 0, MAX_HUE);
 
-    return hsv2rgb(180 - h, 1.0, 1.0);
+    //Cache hue colors for retrieval
+    if(colorCache[hue].a == SDL_ALPHA_TRANSPARENT) {
+        colorCache[hue] = hsv2rgb(hue, 1.0, 1.0);
+    }
+
+    return colorCache[hue];
 }
 
 //This forumla can be found on Wikipedia or similar, searching for "hsv to rgb"
