@@ -17,7 +17,7 @@ Usage:
     PwnsianCartographer ( -h | --help )
 
 Options:
-    render-type             Output render type. Valid: (normal, height)
+    render-type             Output render type. (normal, height)
     -h --help               Show this screen.
     -g --gridlines          Add region-sized gridlines to output
     -c --config-file <file> Use a configuraiton file for all options

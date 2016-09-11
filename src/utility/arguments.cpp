@@ -40,9 +40,14 @@ void Args::fromDocOpt(std::map<std::string, docopt::value>& args)
     scale = args["--scale"].asLong();
     itemZipFilename = args["--items-zip"].asString();
 
-    //User choses drawer type
-    std::string renderType = args["<render-type>"].asString();
-    requestedDrawer = draw::getDrawerType(renderType); //Also validates type here
+    //User choses drawer type; default normal
+    auto& renderTypeArg = args["<render-type>"];
+    if(renderTypeArg) { 
+        renderTypeStr = renderTypeArg.asString();
+    } else {
+        renderTypeStr = draw::getDrawerName(draw::DrawerType::Normal);
+    }
+    requestedDrawer = draw::getDrawerType(renderTypeStr); //Also validates type here
 
     //output has no default, so we need to check for null.
     //validateArguments() will handle empty output string anyway
@@ -75,7 +80,7 @@ void Args::validateArguments()
         scale = 1;
     }
     if(outputFilename.empty()) {
-        outputFilename = removePath(worldName)+"-output.png";
+        outputFilename = removePath(worldName)+"-output-"+renderTypeStr+".png";
     }
     if(!fileExists(itemZipFilename)) {
         error("Could not find items archive \"", itemZipFilename, "\"");

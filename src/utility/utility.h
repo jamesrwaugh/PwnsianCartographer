@@ -2,6 +2,7 @@
 #define UTILITY_H
 #include <vector>
 #include <string>
+#include <map>
 #include <stdexcept>
 #include <sstream>
 #include <iostream>

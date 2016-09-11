@@ -34,6 +34,9 @@ public:
     draw::DrawerType requestedDrawer;
 
 private:
+    std::string renderTypeStr;
+
+private:
     void fromDocOpt(std::map<std::string, docopt::value>& opt);
     void fromConfigFile(const std::string& configFilename);
     void validateArguments();
