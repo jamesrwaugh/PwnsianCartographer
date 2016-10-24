@@ -1,12 +1,10 @@
 # Pwnsian Cartographer
 A simple top-down Minecraft world renderer (Anvil format)
 
-This is a work in progress.
-
-![World Render](NewerWorldRender.png)
+![World Render](NewestWorldRender.png)
 
 ##Features
-- Normal and heightmap output
+- Color, heightmap, and shaded output
 - Multi-core rendering 
 - Output imaging scaling (1x, 2x, ...)
 - Dynamic block color generation
@@ -25,7 +23,7 @@ Usage:
     PwnsianCartographer ( -h | --help )
 
 Options:
-    render-type             Output render type. Valid: (normal, height)
+    render-type             Output render type. (normal, height, shaded)
     -h --help               Show this screen.
     -g --gridlines          Add region-sized gridlines to output
     -c --config-file <file> Use a configuraiton file for all options

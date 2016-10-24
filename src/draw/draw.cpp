@@ -49,7 +49,8 @@ private:
 static const std::map<DrawerType, DrawerRegistry> drawerRegistry = 
 {
     { DrawerType::Normal,    DrawerRegistry::create<NormalDrawer>("normal")    },
-    { DrawerType::HeightMap, DrawerRegistry::create<HeightmapDrawer>("height") }   
+    { DrawerType::HeightMap, DrawerRegistry::create<HeightmapDrawer>("height") },
+    { DrawerType::Shaded,    DrawerRegistry::create<ShadedDrawer>("shaded")    }       
 };
 
 /* ------------------------------------------------------------------------- */
