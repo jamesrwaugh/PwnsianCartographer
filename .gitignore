@@ -49,3 +49,5 @@ CTestTestfile.cmake
 #PwnsianCartographer
 build/
 PwnsianCartographer
+*.png
+*.json
