@@ -13,3 +13,6 @@
 [submodule "src/extlibs/nbt"]
 	path = src/extlibs/nbt
 	url = https://github.com/FliPPeh/cNBT.git
+[submodule "src/extlibs/threadpool"]
+	path = src/extlibs/threadpool
+	url = https://github.com/maginatics/threadpool

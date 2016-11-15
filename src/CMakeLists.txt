@@ -41,6 +41,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 	${PROJECT_SOURCE_DIR}
 	${PROJECT_SOURCE_DIR}/extlibs/
 	${PROJECT_SOURCE_DIR}/extlibs/ZipLib/Source/
+	${PROJECT_SOURCE_DIR}/extlibs/threadpool/src/
 ) 
 
 target_link_libraries(${PROJECT_NAME} 

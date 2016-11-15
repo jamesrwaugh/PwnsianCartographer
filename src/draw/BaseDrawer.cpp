@@ -1,10 +1,9 @@
 #include <SDL2/SDL.h>
-#include <future>
-
 #include "blocks/blocks.h"
 #include "anvil/ChunkInterface.h"
 #include "utility/utility.h"
 #include "utility/lodepng.h"
+#include "maginatics/threadpool/threadpool.h"
 #include "draw/BaseDrawer.h"
 
 namespace draw
@@ -23,8 +22,8 @@ SDL_Surface* BaseDrawer::renderWorld(RegionFileWorld& world, const arguments::Ar
     MC_Point worldSize = world.getSize();
     SDL_Surface* surface = createRGBASurface(worldSize.x * scale, worldSize.z * scale);
 
-    //Keeping track of threads
-    std::vector<std::future<void>> threads;
+    //Keeping track of threads in a pool
+    maginatics::ThreadPool pool(1, maxThreads, 30);
 
     for(auto& pair : world.getAllRegions())
     {
@@ -35,27 +34,13 @@ SDL_Surface* BaseDrawer::renderWorld(RegionFileWorld& world, const arguments::Ar
         /* Bind the "renderRegion" member function, to call in a thread.
          * Somewhere deep inside std::bind/async, the copy ctor of RegionFile is called,
          * so renderRegion needs to accept a RegionFile pointer instead. (&pair.second) */
-        auto function = std::bind(&BaseDrawer::renderRegion, this,
-                                  MC_Point{x,z},
-                                  surface,
-                                  &pair.second);
+        auto function = std::bind(&BaseDrawer::renderRegion, this, MC_Point{x,z}, surface, &pair.second);
 
-        //Launch a new thread to render this region
-        threads.push_back(std::async(std::launch::async, function));
-
-        //If we've got a maximum number of threads, wait for them all
-        if(threads.size() >= maxThreads) {
-            for(auto& thread : threads) {
-                thread.get();
-            }
-            threads.clear();
-        }
+        //Queue a new thread to render this region
+        pool.execute(function);
     }
 
-    //Catches the case in which the for-loop finishes with less than max threads
-    for(auto& thread : threads) {
-        thread.get();
-    }
+    pool.drain();
 
     //Add cool grid lines
     if(gridlines) {
