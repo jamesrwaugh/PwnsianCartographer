@@ -1,7 +1,6 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 #include <string>
-
 #include "utility/keyvalues.h"
 
 /* Singleton wrapper around a KeyValue object, used
@@ -22,4 +21,4 @@ private:
     static KeyValue instance;
 };
 
-#endif // CONFIG_H
+#endif

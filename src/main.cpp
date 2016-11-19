@@ -40,7 +40,7 @@ int main(int argc, char** argv)
     }
     catch(std::exception& ex) {
         log("Something Happened: ", ex.what());
-        exit(1);
+        return 1;
     }
 
     return 0;

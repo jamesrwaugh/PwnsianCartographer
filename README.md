@@ -58,7 +58,7 @@ mkdir build && cd build
 cmake ..
 make
 ```
-This will produce the executable in `build/bin`
+This will produce the executable in the top-level directory
 
 ###Library Requirements
 All used libraries are included as submodules, except for:

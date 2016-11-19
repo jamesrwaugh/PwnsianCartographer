@@ -13,7 +13,7 @@ void ChunkInterface::Section::load(nbt_node* chunk, int y)
     //...Find the section with the Y index we're looking for
     nbt_node* neededSecion = nbt_find(nbtsections, nbtutil::predicates::findYSection, &y);
 
-    //Friendly validity check
+    //Friendly validity check; Expected, as not all sections are loaded
     if(!nbtsections || !neededSecion) {
         state = NOTFOUND;
         return;
@@ -116,12 +116,12 @@ blocks::BlockID ChunkInterface::getBlockID(int x, int y, int z)
 {
     try {
         //Ensure chunk for this y is loaded
-        int ySection = absoluteYToSection(y);
-        loadYSection(ySection);
+        int section = absoluteYToSection(y);
+        loadYSection(section);
 
-        //Y in a chunk is relative to that 16-high chunk section
-        int yInChunk = y % 16;
-        return sections[ySection].getBlockID(x, yInChunk, z);
+        //Y in a section is relative to that 16-high chunk section
+        int yInSection = y % 16;
+        return sections[section].getBlockID(x, yInSection, z);
     }
     catch(...) {
         return blocks::invalidID;

@@ -15,10 +15,8 @@ SDL_Surface* BaseDrawer::renderWorld(RegionFileWorld& world, const arguments::Ar
     recieveArguments(options);        
 
     //Find the lowest X and Z coordinates for proper offset
-    MC_Point offset = topleftOffset(world);
+    MC_Point offset = getTopleftOffset(world);
 
-    /* Then, create an image of the size of the world in blocks
-     * to place all of the region renders on */
     MC_Point worldSize = world.getSize();
     SDL_Surface* surface = createRGBASurface(worldSize.x * scale, worldSize.z * scale);
 
@@ -32,7 +30,7 @@ SDL_Surface* BaseDrawer::renderWorld(RegionFileWorld& world, const arguments::Ar
         int z = (pair.first.z + offset.z) * regionsize;
 
         /* Bind the "renderRegion" member function, to call in a thread.
-         * Somewhere deep inside std::bind/async, the copy ctor of RegionFile is called,
+         * Somewhere deep inside std::bind, the copy ctor of RegionFile is called,
          * so renderRegion needs to accept a RegionFile pointer instead. (&pair.second) */
         auto function = std::bind(&BaseDrawer::renderRegion, this, MC_Point{x,z}, surface, &pair.second);
 
@@ -66,7 +64,7 @@ void BaseDrawer::renderRegion(MC_Point location,  SDL_Surface* surface, RegionFi
 
     for(const auto& pair : region->getAllChunks())
     {
-        //The draw location is the passed in region location + chunk location
+        //The draw location is: region location + chunk location
         int x = location.x + pair.first.x*16;
         int z = location.z + pair.first.z*16;
 
@@ -96,7 +94,7 @@ void BaseDrawer::renderChunk(MC_Point location,
     }
 }
 
-MC_Point BaseDrawer::topleftOffset(RegionFileWorld& world)
+MC_Point BaseDrawer::getTopleftOffset(RegionFileWorld& world)
 {
     /* We need to find the regions with the lowest X, and Z.
      * They may not nessecerily be the same region. These X and Z
@@ -156,8 +154,10 @@ void BaseDrawer::recieveArguments(const arguments::Args& options)
 {
     //Max drawing threads
     maxThreads = options.numThreads;
+    
     //The scale of the image
     scale = options.scale;
+
     //Draw gridlines
     gridlines = options.gridlines;
 }

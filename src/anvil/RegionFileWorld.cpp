@@ -16,24 +16,21 @@ RegionFileWorld::RegionFileWorld(std::string rootpath)
     //The path we're actually looking for the the region subdir
     rootpath += "/region/";
     dp = opendir(rootpath.c_str());
+    if(dp == NULL) {
+        error("Could not load region folder in ", rootpath);
+    }
 
     /* Traverse the region/ directory, load each .mca, and load it
      * into the region map */
-    if(dp != NULL)
+    while((entry = readdir(dp)) != NULL)
     {
-        while((entry = readdir(dp)) != NULL)
-        {
-            auto pair = parseFilename(entry->d_name);
-            bool isValid = pair.first;
-            if(isValid) {
-                RegionCoord coords = pair.second;
-                regions[coords].load(rootpath + std::string(entry->d_name));
-            }
+        auto pair = parseFilename(entry->d_name);
+        bool isValid = pair.first;
+        if(isValid) {
+            RegionCoord coords = pair.second;
+            regions[coords].load(rootpath + std::string(entry->d_name));
         }
-    }
-    else {
-        error("Could not load region folder in ", rootpath);
-    }
+    } 
 }
 
 RegionFileWorld::RegionMap& RegionFileWorld::getAllRegions()

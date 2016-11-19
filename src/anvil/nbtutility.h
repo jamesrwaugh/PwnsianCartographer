@@ -1,9 +1,9 @@
 #ifndef NBTUTILITY_H
 #define NBTUTILITY_H
-
 #include <nbt/nbt.h>
 
-namespace nbtutil {
+namespace nbtutil 
+{
 
 namespace predicates
 {
@@ -21,4 +21,4 @@ int* getIntArray(nbt_node* src, const char* name);
 
 }
 
-#endif // NBTUTILITY_H
+#endif

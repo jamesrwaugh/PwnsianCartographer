@@ -77,7 +77,7 @@ T clamp(const T& value, const T& low, const T& high)
 long getLength(std::istream& is);
 
 //Loads and returns the entire contents of a stream
-std::string readStream(std::istream &is);
+std::string readStream(std::istream& is);
 
 //Loads and returns the entire contents of a file in a string
 std::string readFile(const std::string& filename);
@@ -87,5 +87,8 @@ std::string removePath(const std::string& fullpath);
 
 //Does a file exists?
 bool fileExists(const std::string& filename);
+
+//Is a file a directory?
+bool isDirectory(const std::string& filename);
 
 #endif

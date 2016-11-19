@@ -49,20 +49,19 @@ private:
     //Render a single region to an existing surface at "location" XY
     void renderRegion(MC_Point location, SDL_Surface* surface, RegionFile* region);
 
-    /* Utility to create a 32-bit RGBA surface with w/h,
-     * taking endianness into account */
+    /* Ccreate a 32-bit RGBA surface taking endianness into account */
     SDL_Surface* createRGBASurface(int w, int h);
 
     //Put region-sized (512x512) gridlines on a surface
     void drawGirdLines(SDL_Surface* s);
 
     /* This gives us the magnitude of left-most (-X) and top-most (-Z) regions,
-     * e.g.: World has r.-3.-2.mca and r.0.-4.mca -> {3,4}
+     * e.g.: A world has r.-3.-2.mca and r.0.-4.mca -> {3,4}
      * This is used to properly place the final drawing, by "pushing" all regions
      * by that offset, relative to the top-left of the image */
-    MC_Point topleftOffset(RegionFileWorld& world);
+    MC_Point getTopleftOffset(RegionFileWorld& world);
 };
 
 }
 
-#endif // BASEDRAWER_H
+#endif

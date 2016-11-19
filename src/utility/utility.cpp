@@ -1,13 +1,14 @@
-#include "utility.h"
 #include <iostream>
 #include <fstream>
 #ifndef _WIN32
  #include <unistd.h> //for access()
+ #include <sys/stat.h> //for stat()
 #else
  #include  <io.h>
  #include  <stdio.h>
  #include  <stdlib.h>
 #endif
+#include "utility.h"
 
 std::vector<std::string> Split(const std::string& target, const std::string& delims)
 {
@@ -80,4 +81,16 @@ bool fileExists(const std::string& filename)
  #define ACCESS _access
 #endif
     return ACCESS(filename.c_str(), F_OK) != -1;
+}
+
+bool isDirectory(const std::string& filename)
+{
+#ifndef _WIN32
+ #define STAT stat
+#else
+ #define STAT stat
+#endif
+    struct stat stats;
+    stat(filename.c_str(), &stats);
+    return S_ISDIR(stats.st_mode);
 }

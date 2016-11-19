@@ -1,6 +1,5 @@
 #ifndef NORMALDRAWER_H
 #define NORMALDRAWER_H
-
 #include "BaseDrawer.h"
 
 /* NormalDrawer is the normal color drawer. Output is the block's color */
@@ -21,4 +20,4 @@ private:
 
 }
 
-#endif // NORMALDRAWER_H
+#endif

@@ -119,12 +119,6 @@ RegionFile::RegionFile()
 
 }
 
-RegionFile::RegionFile(const std::string& path)
-    : RegionFile()
-{
-    load(path);
-}
-
 RegionFile::~RegionFile()
 {
     for(auto& pair : knownChunkData) {
@@ -135,7 +129,7 @@ RegionFile::~RegionFile()
 void RegionFile::load(const std::string& path)
 {
     //Load entire file into string
-    fileContent = readFile(path);
+    std::string fileContent = readFile(path);
     if(fileContent.empty()) {
         error("Could not load region file \"", path, "\"");
     }
@@ -151,7 +145,7 @@ void RegionFile::load(const std::string& path)
     int nSectors = (int)fileLength / SECTOR_BYTES;
     sectorFree.resize(nSectors, true);
     sectorFree[0] = false; // chunk offset table
-    sectorFree[1] = false; // for the last modified info
+    sectorFree[1] = false; // last modified table
 
     //Tell me the byte offset of the chunks (sector 1)
     file.seekg(0);
@@ -179,15 +173,13 @@ bool RegionFile::hasChunk(int x, int z)
 
 const RegionFile::ChunkMap& RegionFile::getAllChunks()
 {
-    if(!knowAllChunks)
-    {
-        for(int x = 0; x != 32; ++x) {
+    if(!knowAllChunks) {
+        for(int x = 0; x != 32; ++x)
         for(int z = 0; z != 32; ++z) {
             nbt_node* nbt = getChunkNBT(x,z);
             if(nbt) {
                 knownChunkData[MC_Point{x,z}] = nbt;
             }
-        }
         }
         knowAllChunks = true;
     }
@@ -224,7 +216,7 @@ nbt_node* RegionFile::getChunkNBT(int x, int z)
     unsigned sectorNumber = offset >> 8;
     unsigned numSectors = offset & 0xFF;
     if (sectorNumber + numSectors > sectorFree.size()) {
-        log("Chunk: ", x, z, "invalid sector");
+        log("Chunk: ", x, z, " invalid sector");
         return nullptr;
     }
 

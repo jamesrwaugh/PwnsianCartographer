@@ -17,4 +17,4 @@ struct MC_Point
     }
 };
 
-#endif // TYPES_H
+#endif

@@ -1,5 +1,5 @@
-#include "utility/utility.h"
 #include <fstream>
+#include "utility/utility.h"
 #include "config.h"
 
 bool config::isLoaded = false;

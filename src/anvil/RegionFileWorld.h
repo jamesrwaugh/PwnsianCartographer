@@ -1,8 +1,6 @@
-#ifndef ANVILFILEWORLD_H
-#define ANVILFILEWORLD_H
+#ifndef REGIONFILEWORLD_H
+#define REGIONFILEWORLD_H
 #include <map>
-#include <SDL2/SDL.h>
-
 #include "anvil/RegionFile.h"
 
 /* RegionFileWorld is a world of Anvil regions (RegionFiles). It traverses
@@ -31,7 +29,7 @@ public:
 
 private:
     //From a "r.1.-1.mca", get the 1 and -1. Also validates the name.
-    // return.first == true if valid, return.second is the value if value
+    // return.first == true if valid, return.second is the value if valid
     std::pair<bool,RegionCoord> parseFilename(const std::string& filename);
 
     /* Stored regions. Maps a pair of integers, such as
@@ -39,4 +37,4 @@ private:
     RegionMap regions;
 };
 
-#endif // ANVILFILEWORLD_H
+#endif

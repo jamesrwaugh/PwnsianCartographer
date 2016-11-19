@@ -12,19 +12,13 @@ Args::Args(const std::string& USAGE, int argc, char** argv)
 {
     auto args = docopt::docopt(USAGE, { argv+1, argv+argc }, true, __DATE__);
 
-#if 0
-    for(auto const& arg : args) {
-        std::cout << arg.first <<  " " << arg.second << std::endl;
-    }
-#endif
-
     //<world> is the only required command line arugment
     worldName = args["<world>"].asString();
 
     //Prase. If the config file is specified, load from that instead
     auto& configOption = args["--config-file"];
     if(configOption) {
-         fromConfigFile(configOption.asString());
+        fromConfigFile(configOption.asString());
     } else {
         fromDocOpt(args);
     }
@@ -40,13 +34,8 @@ void Args::fromDocOpt(std::map<std::string, docopt::value>& args)
     scale = args["--scale"].asLong();
     itemZipFilename = args["--items-zip"].asString();
 
-    //User choses drawer type; default normal
-    auto& renderTypeArg = args["<render-type>"];
-    if(renderTypeArg) { 
-        renderTypeStr = renderTypeArg.asString();
-    } else {
-        renderTypeStr = draw::getDrawerName(draw::DrawerType::Normal);
-    }
+    //User choses drawer type
+    renderTypeStr = args["<render-type>"].asString();
     requestedDrawer = draw::getDrawerType(renderTypeStr); //Also validates type here
 
     //output has no default, so we need to check for null.
@@ -81,6 +70,9 @@ void Args::validateArguments()
     }
     if(outputFilename.empty()) {
         outputFilename = removePath(worldName)+"-output-"+renderTypeStr+".png";
+    }
+    if(isDirectory(outputFilename)) {
+        error("Output file \"", outputFilename, "\" is a directory");
     }
     if(!fileExists(itemZipFilename)) {
         error("Could not find items archive \"", itemZipFilename, "\"");

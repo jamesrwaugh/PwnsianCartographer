@@ -2,7 +2,6 @@
 #define CHUNKINTERFACE_H
 #include <array>
 #include <nbt/nbt.h>
-
 #include "types.h"
 #include "blocks/blocks.h"
 
@@ -89,4 +88,4 @@ private:
     void loadYSection(int y);
 };
 
-#endif // CHUNKINTERFACE_H
+#endif

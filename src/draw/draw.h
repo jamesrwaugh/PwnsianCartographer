@@ -26,7 +26,7 @@ std::unique_ptr<BaseDrawer> createDrawer(DrawerType type);
  * drawer selection. Throws exception if no drawer found */
 DrawerType getDrawerType(const std::string& drawerName);
 
-/* Return drawer name based on type, opposite of above */
+/* Return drawer name based on type; opposite of above */
 std::string getDrawerName(const DrawerType& type);
 
 /* Generic helper function to save a surface to a PNG at "filename"

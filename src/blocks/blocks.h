@@ -3,7 +3,6 @@
 #include <SDL2/SDL.h>
 #include <string>
 #include <map>
-
 #include "ZipLib/ZipArchiveEntry.h"
 
 /* Routines to handle returning RGB values for
@@ -30,7 +29,7 @@ public:
 
     /* For std::map. Compares on ID first, and if they're
      * equal, a tie is decided by the meta. */
-    bool operator<(const BlockID& other) const;
+    bool operator< (const BlockID& other) const;
     bool operator==(const BlockID& other) const;
     bool operator!=(const BlockID& other) const;
 
@@ -39,7 +38,7 @@ public:
 };
 
 //Represents a invalid block id
-static const BlockID invalidID = {UINT_MAX,UINT_MAX};
+static const BlockID invalidID = {UINT_MAX, UINT_MAX};
 
 /* Class to load and manage a .zip file of .pngs of block IDS, and extract
  * a color for each, for drawing. Caches colors in a .json file, specified by
@@ -65,10 +64,6 @@ public:
      * png for its ID */
     SDL_Color getBlockColor(unsigned id, unsigned meta = 0) const;
     SDL_Color getBlockColor(const BlockID& blockid) const;
-
-    /* Return the pixel format used in color operations.
-     * Can be useful outside BlockColors */
-    const SDL_PixelFormat* pixelFormat() const;
 
     /* If we have valid .zip data or not */
     bool isLoaded() const;
@@ -100,4 +95,4 @@ private:
 
 }
 
-#endif // BLOCKS_H
+#endif

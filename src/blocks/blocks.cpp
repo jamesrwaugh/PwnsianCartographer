@@ -39,10 +39,8 @@ BlockID::BlockID(const std::string& string)
     size_t dashpos = string.find('-'),
            dotpos  = string.find('.');
 
-    /* There's no checks for == npos here, because by default
-     * if they're not found, they'll be npos anyway. In that case,
-     * we have something like "404" which is the ID, and meta
-     * can default into 0 */
+    /* Note that if dash is not found, ".png" will be passed to
+     * atoi, but it will consume only the numeric chracters */
     id = std::atoi(string.substr(0,dashpos).c_str());
 
     if(dashpos != std::string::npos) {
@@ -123,12 +121,13 @@ void BlockColors::load(const std::string& zipFileName, const std::string& cacheF
         std::string name = entry->GetName();
         name = name.substr(0, name.find('.'));
 
-        /* To get a block color, first the cache (cacheFileName, a .json file) is checked.
-         * if it's not there, it's recomputed used computecolor. If that happens,
+        /* To get a block color, first the cache is checked.
+         * if it's not there, the color is recomputed. If that happens,
          * "hadToRecompute" is set to true, and a new .json cache will be written out */
+         
         Json key = cacheJson[name];
-        if(!key.is_object()) {
-            //If key is not found, look for key with a 0 meta. e.g, "404-0" and not "404"
+        if(key.is_null()) {
+            //Look for key with a 0 meta. e.g, "404-0" and not "404"
             std::string nameWithMeta = name + "-0";
             key = cacheJson[nameWithMeta];
         }
@@ -144,7 +143,7 @@ void BlockColors::load(const std::string& zipFileName, const std::string& cacheF
         }
 
         //Store color and CRC in this object
-        blockColors[name] = {blockColor, zipcrc};
+        blockColors[name] = std::make_pair(blockColor, zipcrc);
     }
 
     //If any blocks were not found in cache
@@ -170,24 +169,22 @@ SDL_Color BlockColors::computeColor(const ZipArchiveEntry::Ptr& blockImage)
     unsigned w = 0, h = 0;
     lodepng::decode(pixels, w, h, (const unsigned char*)pngBytes.data(), pngBytes.size());
 
-    /* A map to map a {color range -> use counts}. These are a number of "buckets"
-     * that colors are grouped into to find the most used. By using SimilarColorCompare
-     * as the comparison, similar colors are said to be equal, effectively grouping them
-     * in the map */
+    /* A map of {color -> use counts}. By using SimilarColorCompare as the comparison, 
+     * similar colors are said to be equal, "averaging" the colors */
     std::map<SDL_Color, unsigned, SimilarColorCompare> colorCounts;
 
-    /* Add colors over the pixels that are not transparent
-     * The recorded color is the RGA value with 255 alpha, for now,
+    /* Record non-transparent colors. The recorded color is the RGA value with 255 alpha
      * To prevent solid blocks like grass having transparency because the
      * first zero-alpha pixel being not 255 alpha */
     for(unsigned i = 0; i != pixels.size(); i += 4)
     {
-        Uint8 r = pixels[i+0],
-         g = pixels[i+1],
-         b = pixels[i+2],
-         a = pixels[i+3];
+        Uint8 r, g, b, a;
+        r = pixels[i+0];
+        g = pixels[i+1];
+        b = pixels[i+2];
+        a = pixels[i+3];
         if(a != SDL_ALPHA_TRANSPARENT) {
-            colorCounts[SDL_Color{r,g,b,SDL_ALPHA_OPAQUE}] += 1;
+            colorCounts[ SDL_Color{r, g, b, SDL_ALPHA_OPAQUE} ] += 1;
         }
     }
 
@@ -197,11 +194,6 @@ SDL_Color BlockColors::computeColor(const ZipArchiveEntry::Ptr& blockImage)
 
     //Return key type at that iterator; the color
     return it->first;
-}
-
-const SDL_PixelFormat* BlockColors::pixelFormat() const
-{
-    return rgba;
 }
 
 std::vector<char> BlockColors::readZipEntry(const ZipArchiveEntry::Ptr& blockImage)
@@ -229,7 +221,7 @@ void BlockColors::saveNewJsonCache() const
     for(const auto& pair : blockColors)
     {
         std::string id = pair.first; //BlockID -> string conversion
-        auto&& value = pair.second;
+        const auto& value = pair.second;
 
         //Convience
         SDL_Color color = value.first;
@@ -261,7 +253,7 @@ SDL_Color BlockColors::getBlockColor(const BlockID& blockid) const
         /* Base recursive case, if meta 0 isn't found, we safely
          * say we don't know the block */
         if(blockid.meta == 0) {
-            return {255, 20, 147, 255}; //Unknown color
+            return SDL_Color{255, 20, 147, 255}; //Unknown color
         }
 
         /* If not found, check if we have the block with no metadata.

@@ -5,7 +5,6 @@
 #include <fstream>
 #include <sstream>
 #include <map>
-
 #include <nbt/nbt.h>
 #include "types.h"
 
@@ -20,10 +19,7 @@ public:
     typedef std::map<MC_Point, nbt_node*> ChunkMap;
 
 public:
-    //Default constuctor to do nothing, or load on construction.
-    //Must call .load() later if default is used.
     RegionFile();
-    RegionFile(const std::string& path);
    ~RegionFile();
 
     //Load the region from a file
@@ -58,7 +54,6 @@ private:
     //The input steam to the file's content, and the file's content in full
     //knownChunkData is the most important, all the stored chunks data.
     std::stringstream file;
-    std::string fileContent;
     ChunkMap knownChunkData;
 
     //is this an invalid chunk coordinate?
@@ -68,4 +63,4 @@ private:
     int getOffset(int x, int z);
 };
 
-#endif // ANVILFILE_H
+#endif
