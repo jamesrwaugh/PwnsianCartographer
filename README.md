@@ -1,5 +1,5 @@
 # Pwnsian Cartographer
-A simple top-down Minecraft world renderer (Anvil format)
+A simple top-down Minecraft world renderer (Anvil format, pre 1.13)
 
 ![World Render](NewestWorldRender.png)
 
